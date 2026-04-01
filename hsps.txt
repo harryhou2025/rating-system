@@ -1,0 +1,112 @@
+HSPS-27 高敏感者量表
+Highly Sensitive Person Scale (Aron & Aron 1997) - 27 item full version
+-----------------------------------------------------------------
+版本: HSPS 完整版 27题
+适用年龄: 12 岁以上
+填表方式: 自评
+结构: 共 27 题，单维度测量"高度敏感"人格特质
+完成时间: 约 5-8 分钟
+-----------------------------------------------------------------
+一、量表概述
+HSPS 由 Elaine N. Aron 于 1997 年编制，是测量"高度敏感"人格特质的经典量表。高度敏感是一种稳定的人格特质，表现为对感官刺激更敏感、加工信息更深入、共情能力更强、对细微变化更觉察。大约 15-20% 的人群属于高敏感者。
+完整结构：27题，每题 1-7 分，总分范围 27-189。得分越高，敏感程度越高。无反向计分。
+二、数据库表结构设计（开发参考）
+表名建议: hsps_27_assessment
+CREATE TABLE hsps_27_assessment (   id BIGINT PRIMARY KEY AUTO_INCREMENT,   subject_id VARCHAR(64), assess_date DATE,   age_years DECIMAL(4,1), gender VARCHAR(8),   q01_score  TINYINT  COMMENT 'Q01 (1-7)',   q02_score  TINYINT  COMMENT 'Q02 (1-7)',   q03_score  TINYINT  COMMENT 'Q03 (1-7)',   q04_score  TINYINT  COMMENT 'Q04 (1-7)',   q05_score  TINYINT  COMMENT 'Q05 (1-7)',   q06_score  TINYINT  COMMENT 'Q06 (1-7)',   q07_score  TINYINT  COMMENT 'Q07 (1-7)',   q08_score  TINYINT  COMMENT 'Q08 (1-7)',   q09_score  TINYINT  COMMENT 'Q09 (1-7)',   q10_score  TINYINT  COMMENT 'Q10 (1-7)',   q11_score  TINYINT  COMMENT 'Q11 (1-7)',   q12_score  TINYINT  COMMENT 'Q12 (1-7)',   q13_score  TINYINT  COMMENT 'Q13 (1-7)',   q14_score  TINYINT  COMMENT 'Q14 (1-7)',   q15_score  TINYINT  COMMENT 'Q15 (1-7)',   q16_score  TINYINT  COMMENT 'Q16 (1-7)',   q17_score  TINYINT  COMMENT 'Q17 (1-7)',   q18_score  TINYINT  COMMENT 'Q18 (1-7)',   q19_score  TINYINT  COMMENT 'Q19 (1-7)',   q20_score  TINYINT  COMMENT 'Q20 (1-7)',   q21_score  TINYINT  COMMENT 'Q21 (1-7)',   q22_score  TINYINT  COMMENT 'Q22 (1-7)',   q23_score  TINYINT  COMMENT 'Q23 (1-7)',   q24_score  TINYINT  COMMENT 'Q24 (1-7)',   q25_score  TINYINT  COMMENT 'Q25 (1-7)',   q26_score  TINYINT  COMMENT 'Q26 (1-7)',   q27_score  TINYINT  COMMENT 'Q27 (1-7)',   total_score INT COMMENT '总分 (27-189)',   mean_score DECIMAL(4,2) COMMENT '平均分 (1-7)',   sensitivity_level VARCHAR(32) COMMENT '敏感程度等级',   notes TEXT, created_at DATETIME, updated_at DATETIME );
+
+三、评分规则与选项说明
+每个题目描述对你的符合程度，1-7 七级评分：
+分值
+符合程度
+1
+完全不符合
+2
+不太符合
+3
+有点不符合
+4
+中等符合
+5
+有点符合
+6
+比较符合
+7
+完全符合
+
+没有反向计分题，所有题目得分直接相加。
+四、完整题目列表（27题）
+题号
+题目内容
+01
+我更容易被别人的情绪影响
+02
+我更喜欢看那些能引发思考的电影，而不是动作片
+03
+强光、强烈气味、粗糙的布料、巨大声音会让我感到不舒服
+04
+突然的惊吓会让我吓到
+05
+太多事情同时发生会让我感到不知所措
+06
+哪怕只是去了人多的地方玩一天，我也需要一整天独处来恢复
+07
+我对疼痛非常敏感
+08
+比起同时做很多事，我更喜欢一次只做一件事
+09
+我能注意到别人不容易注意到的细微刺激
+10
+我不喜欢看有很多暴力镜头的节目
+11
+当需要同时处理很多事情，我会感到慌乱
+12
+当我需要跟很多人打交道，我会调整自己以应对，我感到累
+13
+我更容易起鸡皮疙瘩或者被吓到
+14
+咖啡让我更加紧张，我不喝太多咖啡
+15
+我对自己的情绪非常敏感
+16
+我更喜欢安静不被打扰的环境
+17
+艺术和音乐对我的影响很深，有时候会让我非常触动
+18
+当我需要快速做事情，我会感到紧张
+19
+在别人的情绪影响下，我很容易共情
+20
+一天里有太多事情发生，我会感到很累很烦躁
+21
+我尽量避免安排太多事情挤在一起
+22
+冲突和争吵让我非常不舒服
+23
+在别人的坏情绪影响下，我很难放松下来
+24
+我更容易感觉到饥饿，哪怕只是几个小时没吃饭
+25
+我对气味非常敏感，能闻到别人闻不到的味道
+26
+我很容易注意到别人的情绪变化
+27
+我生来就是一个敏感的人
+
+五、计分算法与结果解释
+// HSPS-27 Scoring Algorithm function calculateHSPS(responses) {   let total = 0;   for (let n = 1; n <= 27; n++) {     total += responses['q'+String(n).padStart(2,'0')] || 1;   }   const mean = total / 27;   let level;   if (mean < 3) level = '低敏感';   else if (mean < 4.5) level = '中等敏感';   else level = '高度敏感';   return {     total_score: total,     mean_score: parseFloat(mean.toFixed(2)),     sensitivity_level: level   }; } // Normative mean: ~ 4.1 (so mean >= 4.1 indicates high sensitivity) // Original cutoff: total > 118 (mean > 4.37) = highly sensitive 
+
+六、结果解释标准
+敏感等级
+平均分范围
+说明
+低敏感
+< 3.0
+低于平均水平
+中等敏感
+3.0 - 4.4
+中等敏感程度
+高度敏感
+>= 4.5
+属于高敏感特质
+
+参考常模：研究平均分为 ~4.1，总分 > 118（平均分 > 4.37）被认为是高度敏感特质。高度敏感是一种正常人格特质，不是疾病，约15-20%人群具有该特质。

@@ -1,0 +1,274 @@
+GARS-3 自闭症快速评定量表第三版
+Gilliam Autism Rating Scale, Third Edition (Gilliam 2014)
+-----------------------------------------------------------------
+版本: GARS-3 第三版（2014）
+适用年龄: 3-22 岁儿童及青少年
+填表方式: 家长/教师/专业人员评定
+结构: 共 56 题，6 个分量表
+完成时间: 约 10-15 分钟
+-----------------------------------------------------------------
+一、量表概述
+GARS-3 由 James E. Gilliam 于 2014 年修订，是自闭症谱系障碍快速筛查和严重程度评估的标准化工具。基于 DSM-5 诊断标准，包含 6 个分量表，适合 3-22 岁儿童青少年，完成时间短，结果解释方便，是临床和科研常用的快速筛查工具。
+完整结构：56 题，每题 0-3 分，总分范围 0-168。得分越高，自闭症特征越明显。
+二、数据库表结构设计（开发参考）
+表名建议: gars3_assessment
+CREATE TABLE gars3_assessment (   id BIGINT PRIMARY KEY AUTO_INCREMENT,   subject_id VARCHAR(64), assess_date DATE,   assessor_id VARCHAR(64), assessor_type VARCHAR(16),   age_years DECIMAL(4,1), gender VARCHAR(8),   q01_score  TINYINT  COMMENT 'Q01 (0-3)',   q02_score  TINYINT  COMMENT 'Q02 (0-3)',   q03_score  TINYINT  COMMENT 'Q03 (0-3)',   q04_score  TINYINT  COMMENT 'Q04 (0-3)',   q05_score  TINYINT  COMMENT 'Q05 (0-3)',   q06_score  TINYINT  COMMENT 'Q06 (0-3)',   q07_score  TINYINT  COMMENT 'Q07 (0-3)',   q08_score  TINYINT  COMMENT 'Q08 (0-3)',   q09_score  TINYINT  COMMENT 'Q09 (0-3)',   q10_score  TINYINT  COMMENT 'Q10 (0-3)',   q11_score  TINYINT  COMMENT 'Q11 (0-3)',   q12_score  TINYINT  COMMENT 'Q12 (0-3)',   q13_score  TINYINT  COMMENT 'Q13 (0-3)',   q14_score  TINYINT  COMMENT 'Q14 (0-3)',   q15_score  TINYINT  COMMENT 'Q15 (0-3)',   q16_score  TINYINT  COMMENT 'Q16 (0-3)',   q17_score  TINYINT  COMMENT 'Q17 (0-3)',   q18_score  TINYINT  COMMENT 'Q18 (0-3)',   q19_score  TINYINT  COMMENT 'Q19 (0-3)',   q20_score  TINYINT  COMMENT 'Q20 (0-3)',   q21_score  TINYINT  COMMENT 'Q21 (0-3)',   q22_score  TINYINT  COMMENT 'Q22 (0-3)',   q23_score  TINYINT  COMMENT 'Q23 (0-3)',   q24_score  TINYINT  COMMENT 'Q24 (0-3)',   q25_score  TINYINT  COMMENT 'Q25 (0-3)',   q26_score  TINYINT  COMMENT 'Q26 (0-3)',   q27_score  TINYINT  COMMENT 'Q27 (0-3)',   q28_score  TINYINT  COMMENT 'Q28 (0-3)',   q29_score  TINYINT  COMMENT 'Q29 (0-3)',   q30_score  TINYINT  COMMENT 'Q30 (0-3)',   q31_score  TINYINT  COMMENT 'Q31 (0-3)',   q32_score  TINYINT  COMMENT 'Q32 (0-3)',   q33_score  TINYINT  COMMENT 'Q33 (0-3)',   q34_score  TINYINT  COMMENT 'Q34 (0-3)',   q35_score  TINYINT  COMMENT 'Q35 (0-3)',   q36_score  TINYINT  COMMENT 'Q36 (0-3)',   q37_score  TINYINT  COMMENT 'Q37 (0-3)',   q38_score  TINYINT  COMMENT 'Q38 (0-3)',   q39_score  TINYINT  COMMENT 'Q39 (0-3)',   q40_score  TINYINT  COMMENT 'Q40 (0-3)',   q41_score  TINYINT  COMMENT 'Q41 (0-3)',   q42_score  TINYINT  COMMENT 'Q42 (0-3)',   q43_score  TINYINT  COMMENT 'Q43 (0-3)',   q44_score  TINYINT  COMMENT 'Q44 (0-3)',   q45_score  TINYINT  COMMENT 'Q45 (0-3)',   q46_score  TINYINT  COMMENT 'Q46 (0-3)',   q47_score  TINYINT  COMMENT 'Q47 (0-3)',   q48_score  TINYINT  COMMENT 'Q48 (0-3)',   q49_score  TINYINT  COMMENT 'Q49 (0-3)',   q50_score  TINYINT  COMMENT 'Q50 (0-3)',   q51_score  TINYINT  COMMENT 'Q51 (0-3)',   q52_score  TINYINT  COMMENT 'Q52 (0-3)',   q53_score  TINYINT  COMMENT 'Q53 (0-3)',   q54_score  TINYINT  COMMENT 'Q54 (0-3)',   q55_score  TINYINT  COMMENT 'Q55 (0-3)',   q56_score  TINYINT  COMMENT 'Q56 (0-3)',   -- 分量表原始分   s_stereotyped    INT COMMENT '刻板行为 (0-30)',   s_communication  INT COMMENT '沟通 (0-30)',   s_social         INT COMMENT '社交互动 (0-30)',   s_cognitive      INT COMMENT '认知 (0-30)',   s_adaptation     INT COMMENT '适应行为 (0-30)',   s_comorbid       INT COMMENT '情绪行为问题 (0-18)',   -- 总分和结果   total_score      INT COMMENT '总分 (0-168)',   autism_probability VARCHAR(32) COMMENT '自闭症可能性',   severity_level   VARCHAR(32) COMMENT '严重程度',   percentile_rank  INT COMMENT '百分位等级',   notes TEXT, created_at DATETIME, updated_at DATETIME );
+
+三、评分规则与选项说明
+每个条目按行为出现频率四级评分（得分越高，自闭症特征越明显）：
+分值
+频率
+中文说明
+0
+从不
+从未出现或几乎不出现
+1
+很少
+偶尔出现（约占时间 10%）
+2
+有时
+经常出现（约占时间 50%）
+3
+经常
+非常频繁出现（约占时间 90%）
+
+四、完整题目列表（56题）
+题号
+题目内容
+分量表
+01
+摇晃身体（前后来回或左右摇晃身体）
+ST
+02
+拍手、打手或拍打身体其他部位
+ST
+03
+用脚尖走路（踮脚行走）
+ST
+04
+重复无意义的动作或声音
+ST
+05
+坚持固定的日常程序或仪式，如果改变会烦躁
+ST
+06
+排列物品或将东西按特定顺序摆放
+ST
+07
+对特定物品有异常强烈的依恋
+ST
+08
+对感官刺激（声音/触觉/光线）过度敏感
+ST
+09
+对某些声音或气味有异常强烈的兴趣
+ST
+10
+重复说相同的词语或短语
+ST
+11
+发起对话有困难
+CO
+12
+维持对话有困难
+CO
+13
+理解别人的非语言信息（手势表情）有困难
+CO
+14
+使用恰当的眼神接触有困难
+CO
+15
+语调异常，缺乏正常的抑扬顿挫
+CO
+16
+理解幽默或讽刺有困难
+CO
+17
+说话内容和情境不匹配
+CO
+18
+表达自己的感受有困难
+CO
+19
+模仿别人的动作有困难
+CO
+20
+改变话题有困难
+CO
+21
+缺乏与同龄人互动的兴趣
+SO
+22
+分享自己的快乐或成就有困难
+SO
+23
+对他人的情绪缺乏回应
+SO
+24
+难以理解社交规则
+SO
+25
+难以建立和维持友谊
+SO
+26
+对别人发起的社交互动缺乏回应
+SO
+27
+不喜欢和别的孩子一起玩
+SO
+28
+很难参与假装游戏
+SO
+29
+很少主动发起社交互动
+SO
+30
+不能理解别人的感受
+SO
+31
+难以和他人一起关注同一件事情（共同注意）
+COG
+32
+对假装游戏不感兴趣
+COG
+33
+理解因果关系有困难
+COG
+34
+从一个活动转换到另一个活动有困难
+COG
+35
+很难想出解决问题的不同方法
+COG
+36
+对特定主题有过度狭窄、强烈的兴趣
+COG
+37
+难以适应日常生活中的变化
+COG
+38
+很难理解抽象概念
+COG
+39
+很难在同一时间关注一件以上事情
+COG
+40
+学习新东西依赖死记硬背
+COG
+41
+自己穿衣有困难
+AD
+42
+自己进食有困难
+AD
+43
+如厕技能没有发展到位
+AD
+44
+整理自己物品有困难
+AD
+45
+遵守家庭/学校规则有困难
+AD
+46
+独立完成日常家务有困难
+AD
+47
+在没有成人帮助下无法出门
+AD
+48
+难以按时完成作业或任务
+AD
+49
+难以自己洗澡
+AD
+50
+很难保持个人物品整洁
+AD
+51
+经常发脾气或爆发情绪
+EM
+52
+变得焦虑或紧张
+EM
+53
+活动过度/坐不住
+EM
+54
+攻击性行为
+EM
+55
+睡眠问题
+EM
+56
+进食问题
+EM
+
+五、分量表结构对照表
+缩写
+分量表名称
+对应题号
+题目数
+原始分范围
+ST
+刻板行为
+Q01-Q10
+10
+0-30
+CO
+沟通
+Q11-Q20
+10
+0-30
+SO
+社交互动
+Q21-Q30
+10
+0-30
+COG
+认知
+Q31-Q40
+10
+0-30
+AD
+适应行为
+Q41-Q50
+10
+0-30
+EM
+情绪行为问题
+Q51-Q56
+6
+0-18
+
+六、计分算法（开发参考）
+// GARS-3 Scoring Algorithm const GARS3_SUBSCALES = {   stereotyped:   [1,2,3,4,5,6,7,8,9,10],   communication: [11,12,13,14,15,16,17,18,19,20],   social:        [21,22,23,24,25,26,27,28,29,30],   cognitive:     [31,32,33,34,35,36,37,38,39,40],   adaptation:    [41,42,43,44,45,46,47,48,49,50],   comorbid:      [51,52,53,54,55,56], };  function calculateGARS3(responses) {   const subs = {};   let total = 0;   for (const [name, items] of Object.entries(GARS3_SUBSCALES)) {     const sum = items.reduce((s,n) => s + (responses['q'+String(n).padStart(2,'0')]||0), 0);     subs[name] = sum; total += sum;   }   let ap, sv;   if (total < 40) { ap='Very Low';  sv='无自闭症特征'; }   else if (total < 60) { ap='Low'; sv='轻度自闭症特征'; }   else if (total < 80) { ap='Moderate'; sv='中度自闭症特征'; }   else if (total < 100) { ap='High'; sv='较重度自闭症特征'; }   else { ap='Very High'; sv='重度自闭症特征'; }   return {     subscale_raw: subs,     total_score: total,     autism_probability: ap,     severity_level: sv   }; } // GARS-3 cutoffs: //   total >= 60: possible autism //   total >= 80: high probability 
+
+七、结果解释标准
+自闭症可能性
+总分范围
+百分位
+临床参考
+极低 (Very Low)
+< 40
+< 1%
+无自闭症特征
+低 (Low)
+40-59
+1-15%
+轻度自闭症特征，建议观察
+中等 (Moderate)
+60-79
+16-50%
+中度自闭症特征，建议进一步评估
+高 (High)
+80-99
+51-84%
+较重度自闭症特征，建议诊断评估
+极高 (Very High)
+>= 100
+85-99%
+重度自闭症特征，高度怀疑ASD，建议立即诊断
+
+GARS-3 是筛查工具，最终诊断需要由专业临床医生结合多源信息进行综合判断。

@@ -1,0 +1,269 @@
+CATI 全面自闭症谱系特征量表
+Comprehensive Autism Traits Inventory (Purves 2021)
+-----------------------------------------------------------------
+版本: CATI v1.0 (2021)
+适用年龄: 16 岁以上青少年及成人
+填表方式: 自评
+结构: 共 58 题，包含 6 个因子
+完成时间: 约 10-15 分钟
+-----------------------------------------------------------------
+一、量表概述
+CATI 由 Purves 等人于 2021 年编制，是专门为成年人设计的全面自闭症特征自评量表。相比于传统的AQ自闭症谱系量表，CATI覆盖了更广泛的自闭症特征领域，包括：社交沟通、感觉敏感、重复刻板行为、共情能力、注意力转换、兴趣模式六个维度。
+完整结构：58题，每题1-4分，总分范围58-232。得分越高，自闭症特征越明显。
+二、数据库表结构设计（开发参考）
+表名建议: cati_assessment
+CREATE TABLE cati_assessment (   id BIGINT PRIMARY KEY AUTO_INCREMENT,   subject_id VARCHAR(64), assess_date DATE,   age_years DECIMAL(4,1), gender VARCHAR(8),   q01_score  TINYINT  COMMENT 'Q01 (1-4)',   q02_score  TINYINT  COMMENT 'Q02 (1-4)',   q03_score  TINYINT  COMMENT 'Q03 (1-4)',   q04_score  TINYINT  COMMENT 'Q04 (1-4)',   q05_score  TINYINT  COMMENT 'Q05 (1-4)',   q06_score  TINYINT  COMMENT 'Q06 (1-4)',   q07_score  TINYINT  COMMENT 'Q07 (1-4)',   q08_score  TINYINT  COMMENT 'Q08 (1-4)',   q09_score  TINYINT  COMMENT 'Q09 (1-4)',   q10_score  TINYINT  COMMENT 'Q10 (1-4)',   q11_score  TINYINT  COMMENT 'Q11 (1-4)',   q12_score  TINYINT  COMMENT 'Q12 (1-4)',   q13_score  TINYINT  COMMENT 'Q13 (1-4)',   q14_score  TINYINT  COMMENT 'Q14 (1-4)',   q15_score  TINYINT  COMMENT 'Q15 (1-4)',   q16_score  TINYINT  COMMENT 'Q16 (1-4)',   q17_score  TINYINT  COMMENT 'Q17 (1-4)',   q18_score  TINYINT  COMMENT 'Q18 (1-4)',   q19_score  TINYINT  COMMENT 'Q19 (1-4)',   q20_score  TINYINT  COMMENT 'Q20 (1-4)',   q21_score  TINYINT  COMMENT 'Q21 (1-4)',   q22_score  TINYINT  COMMENT 'Q22 (1-4)',   q23_score  TINYINT  COMMENT 'Q23 (1-4)',   q24_score  TINYINT  COMMENT 'Q24 (1-4)',   q25_score  TINYINT  COMMENT 'Q25 (1-4)',   q26_score  TINYINT  COMMENT 'Q26 (1-4)',   q27_score  TINYINT  COMMENT 'Q27 (1-4)',   q28_score  TINYINT  COMMENT 'Q28 (1-4)',   q29_score  TINYINT  COMMENT 'Q29 (1-4)',   q30_score  TINYINT  COMMENT 'Q30 (1-4)',   q31_score  TINYINT  COMMENT 'Q31 (1-4)',   q32_score  TINYINT  COMMENT 'Q32 (1-4)',   q33_score  TINYINT  COMMENT 'Q33 (1-4)',   q34_score  TINYINT  COMMENT 'Q34 (1-4)',   q35_score  TINYINT  COMMENT 'Q35 (1-4)',   q36_score  TINYINT  COMMENT 'Q36 (1-4)',   q37_score  TINYINT  COMMENT 'Q37 (1-4)',   q38_score  TINYINT  COMMENT 'Q38 (1-4)',   q39_score  TINYINT  COMMENT 'Q39 (1-4)',   q40_score  TINYINT  COMMENT 'Q40 (1-4)',   q41_score  TINYINT  COMMENT 'Q41 (1-4)',   q42_score  TINYINT  COMMENT 'Q42 (1-4)',   q43_score  TINYINT  COMMENT 'Q43 (1-4)',   q44_score  TINYINT  COMMENT 'Q44 (1-4)',   q45_score  TINYINT  COMMENT 'Q45 (1-4)',   q46_score  TINYINT  COMMENT 'Q46 (1-4)',   q47_score  TINYINT  COMMENT 'Q47 (1-4)',   q48_score  TINYINT  COMMENT 'Q48 (1-4)',   q49_score  TINYINT  COMMENT 'Q49 (1-4)',   q50_score  TINYINT  COMMENT 'Q50 (1-4)',   q51_score  TINYINT  COMMENT 'Q51 (1-4)',   q52_score  TINYINT  COMMENT 'Q52 (1-4)',   q53_score  TINYINT  COMMENT 'Q53 (1-4)',   q54_score  TINYINT  COMMENT 'Q54 (1-4)',   q55_score  TINYINT  COMMENT 'Q55 (1-4)',   q56_score  TINYINT  COMMENT 'Q56 (1-4)',   q57_score  TINYINT  COMMENT 'Q57 (1-4)',   q58_score  TINYINT  COMMENT 'Q58 (1-4)',   f_social_communication INT COMMENT '社交沟通 (12-48)',   f_sensory_sensitivity  INT COMMENT '感觉敏感 (11-44)',   f_restricted_repetitive INT COMMENT '重复刻板行为 (9-36)',   f_cognitive_empathy    INT COMMENT '认知共情 (8-32)',   f_attentional_shifting  INT COMMENT '注意力转换 (9-36)',   f_intense_interests    INT COMMENT '强烈兴趣 (9-36)',   total_score            INT COMMENT '总分 (58-232)',   autism_trait_level    VARCHAR(32) COMMENT '自闭症特征水平',   notes TEXT, created_at DATETIME, updated_at DATETIME );
+
+三、评分规则与选项说明
+每个条目根据描述的符合程度，进行 1-4 四级评分：
+分值
+符合程度
+中文说明
+1
+完全不同意
+该描述完全不符合你
+2
+稍微同意
+该描述有点符合你
+3
+比较同意
+该描述大部分符合你
+4
+完全同意
+该描述完全符合你
+
+认知共情因子（Q24-Q31）全部为反向计分。
+四、完整题目列表（58题）
+题号
+题目内容
+因子
+01
+发起对话对我来说很困难
+SC
+02
+我发现理解讽刺和幽默很困难
+SC
+03
+我发现和陌生人开始对话很难
+SC
+04
+我通常不知道该怎么回应别人说的话
+SC
+05
+我觉得眼神接触很不舒服
+SC
+06
+聊天的时候，我很难跟上话题的转换
+SC
+07
+我觉得理解别人的肢体语言很难
+SC
+08
+在社交场合我常常觉得自己格格不入
+SC
+09
+我很难理解人们说话背后隐藏的意思
+SC
+10
+我常常不知道什么时候该笑
+SC
+11
+我发现闲聊很难
+SC
+12
+我很难解读别人的情绪
+SC
+13
+某些声音会让我感到不舒服或焦虑
+SS
+14
+我对某些质地的衣物非常敏感
+SS
+15
+我会被某些纹理或材质强烈吸引
+SS
+16
+强光会让我感到不舒服
+SS
+17
+某些气味会让我感到不适或恶心
+SS
+18
+我会被某些形状或图案吸引
+SS
+19
+我对温度变化比其他人更敏感
+SS
+20
+在嘈杂环境中我会感到不知所措
+SS
+21
+我会去闻不应该被闻的东西
+SS
+22
+我对某些触觉接触过度敏感
+SS
+23
+我会刻意去触摸某些物体只是因为它们的质地
+SS
+24
+我需要每天都做某些事情，否则我会不安
+RR
+25
+我坚持相同的日常程序，如果改变会让我不安
+RR
+26
+我会做重复性的身体动作（比如摇晃、踱步）
+RR
+27
+我的言语有重复或语调不寻常
+RR
+28
+我会把东西排列得非常整齐，顺序错了会不舒服
+RR
+29
+我对规则和秩序有强烈需求
+RR
+30
+当我焦虑时会做重复行为让自己平静下来
+RR
+31
+我很难接受计划的突然改变
+RR
+32
+我有重复的仪式化行为
+RR
+33
+我能很容易理解别人的感受（反向）
+CE-R
+34
+我能快速察觉到别人是否不开心（反向）
+CE-R
+35
+我能理解为什么别人会感到受伤（反向）
+CE-R
+36
+我能意识到我的言论伤害了别人（反向）
+CE-R
+37
+别人的情绪会影响我（反向）
+CE-R
+38
+当别人难过时，我知道该怎么做（反向）
+CE-R
+39
+我能理解不同观点（反向）
+CE-R
+40
+我注意到别人什么时候感到不舒服（反向）
+CE-R
+41
+很难把注意力从一件事转移到另一件事
+AS
+42
+当我专注于一件事的时候，很难停下来切换
+AS
+43
+我一次只能专注于一件事情
+AS
+44
+被打断会让我感到非常不舒服
+AS
+45
+当我深度投入某件事时，很难停下来
+AS
+46
+很难适应日常生活中的意外变化
+AS
+47
+我会沉浸在一件事里忘记了时间
+AS
+48
+我很难同时处理多项任务
+AS
+49
+我很难从自己感兴趣的事情中抽身出来
+AS
+50
+我有一两个非常强烈的兴趣，占据了我很多时间
+II
+51
+我的兴趣非常狭窄和特定
+II
+52
+我会收集关于我的兴趣领域的大量信息
+II
+53
+了解我的兴趣领域的一切对我来说很重要
+II
+54
+我会花很多时间学习关于我兴趣的知识
+II
+55
+我会对某个主题非常着迷，以至于忘记了时间
+II
+56
+如果不能追求我的兴趣，生活会变得没有意义
+II
+57
+我会被某些特定主题强烈吸引
+II
+58
+我对某些话题的知识比大多数人多很多
+II
+
+五、因子结构对照表
+缩写
+因子名称
+对应题号
+题目数
+原始分范围
+SC
+社交沟通
+Q01-Q12
+12
+12-48
+SS
+感觉敏感
+Q13-Q23
+11
+11-44
+RR
+重复刻板行为
+Q24-Q32
+9
+9-36
+CE
+认知共情
+Q33-Q40
+8
+8-32 （全反向）
+AS
+注意力转换
+Q41-Q49
+9
+9-36
+II
+强烈兴趣
+Q50-Q58
+9
+9-36
+
+六、计分算法（开发参考）
+// CATI Scoring Algorithm const CATI_FACTORS = {   social_communication: [1,2,3,4,5,6,7,8,9,10,11,12],   sensory_sensitivity:  [13,14,15,16,17,18,19,20,21,22,23],   restricted_repetitive: [24,25,26,27,28,29,30,31,32],   cognitive_empathy:    [33,34,35,36,37,38,39,40],   attentional_shifting: [41,42,43,44,45,46,47,48,49],   intense_interests:    [50,51,52,53,54,55,56,57,58], }; const REVERSE = [33,34,35,36,37,38,39,40];  function calculateCATI(responses) {   const factors = {};   let total = 0;   for (const [name, items] of Object.entries(CATI_FACTORS)) {     let sum = 0;     for (const n of items) {       let v = responses['q'+String(n).padStart(2,'0')] || 1;       if (REVERSE.includes(n)) v = 5 - v;       sum += v;     }     factors[name] = sum; total += sum;   }   let level;   if (total <= 100) level = "低自闭症特征";   else if (total <= 150) level = "中等自闭症特征";   else level = "高自闭症特征";   return {     factor_scores: factors,     total_score: total,     autism_trait_level: level   }; } // Higher total = more autistic traits // Clinical cut: typically total > 130 indicates elevated autistic traits 
+
+七、结果解释参考
+特征水平
+总分范围
+临床参考
+低自闭症特征
+58-100
+自闭症特征不明显
+中等自闭症特征
+101-150
+存在一定程度自闭症特征
+高自闭症特征
+151-232
+存在明显自闭症特征，建议进一步评估
+
+CATI 是自评筛查工具，不用于临床诊断，但可帮助识别自闭症特征模式。

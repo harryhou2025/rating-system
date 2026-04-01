@@ -1,0 +1,67 @@
+IDA 成人阅读障碍自测题
+International Dyslexia Association Adult Self-Report Screening
+-----------------------------------------------------------------
+版本: IDA 官方成人阅读障碍自测题
+适用年龄: 16 岁以上成人
+填表方式: 自评
+结构: 共 15 题，是非题
+完成时间: 约 3 分钟
+-----------------------------------------------------------------
+一、量表概述
+由国际阅读障碍协会（International Dyslexia Association, IDA）提供的成人阅读障碍自测题，共15个是非题，回答"是"得1分，"否"得0分，简单易用，适合快速筛查。
+计分方式：是=1分，否=0分。总分范围 0-15。得分越高，阅读障碍可能性越大。
+二、数据库表结构设计（开发参考）
+表名建议: ida_dyslexia_screener
+CREATE TABLE ida_dyslexia_screener (   id BIGINT PRIMARY KEY AUTO_INCREMENT,   subject_id VARCHAR(64), assess_date DATE,   age_years DECIMAL(4,1), gender VARCHAR(8),   q01_yesno  TINYINT  COMMENT 'Q01 (0=否 1=是)',   q02_yesno  TINYINT  COMMENT 'Q02 (0=否 1=是)',   q03_yesno  TINYINT  COMMENT 'Q03 (0=否 1=是)',   q04_yesno  TINYINT  COMMENT 'Q04 (0=否 1=是)',   q05_yesno  TINYINT  COMMENT 'Q05 (0=否 1=是)',   q06_yesno  TINYINT  COMMENT 'Q06 (0=否 1=是)',   q07_yesno  TINYINT  COMMENT 'Q07 (0=否 1=是)',   q08_yesno  TINYINT  COMMENT 'Q08 (0=否 1=是)',   q09_yesno  TINYINT  COMMENT 'Q09 (0=否 1=是)',   q10_yesno  TINYINT  COMMENT 'Q10 (0=否 1=是)',   q11_yesno  TINYINT  COMMENT 'Q11 (0=否 1=是)',   q12_yesno  TINYINT  COMMENT 'Q12 (0=否 1=是)',   q13_yesno  TINYINT  COMMENT 'Q13 (0=否 1=是)',   q14_yesno  TINYINT  COMMENT 'Q14 (0=否 1=是)',   q15_yesno  TINYINT  COMMENT 'Q15 (0=否 1=是)',   total_score INT COMMENT '总分 (0-15)',   dyslexia_risk VARCHAR(32) COMMENT '阅读障碍风险',   notes TEXT, created_at DATETIME, updated_at DATETIME );
+
+三、完整题目列表（15题）
+题号
+问题描述（是=1分 否=0分）
+01
+你是否在阅读时有困难，需要读好几遍才能理解？
+02
+你是否拼写单词有困难，经常拼错？
+03
+你是否在记住日期、人名、电话号码方面有困难？
+04
+你是否在个人生活中，经常放错东西，难以找到？
+05
+你是否学习第二语言很困难？
+06
+你是否学习开车比别人需要更长时间？
+07
+你是否方向感不好，容易迷路？
+08
+你小时候是否很晚才学会说话？
+09
+你小时候，是否很晚才学会认字？
+10
+你是否很难记住诗歌歌词？
+11
+你是否小时候阅读就比同龄人慢？
+12
+你是否在整理安排事情方面有困难？
+13
+你是否不喜欢阅读，尽量避免阅读？
+14
+你是否在准确发音方面有困难？
+15
+你的家人中是否有人有阅读或拼写困难？
+
+四、计分与结果解释
+// IDA Dyslexia Screener Scoring function calculateIDA(responses) {   let total = 0;   for (let n = 1; n <= 15; n++) {     total += responses['q'+String(n).padStart(2,'0')] || 0;   }   let risk;   if (total < 5) risk = '低风险';   else if (total < 8) risk = '中等风险';   else risk = '高风险';   return { total_score: total, dyslexia_risk: risk }; } // Generally: >= 5 suggests consider further evaluation // >= 8: high probability 
+
+风险等级
+总分范围
+建议
+低风险
+0-4
+阅读障碍可能性低
+中等风险
+5-7
+存在多个特征，建议进一步确认
+高风险
+8-15
+高度可能存在阅读障碍，建议专业评估
+
+本工具仅用于自我筛查，不能替代专业诊断诊断。

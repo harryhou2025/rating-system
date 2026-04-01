@@ -1,0 +1,300 @@
+CAARS 完整版 Conners成人ADHD评定量表
+Conners' Adult ADHD Rating Scales - Full Version (Conners 1999)
+-----------------------------------------------------------------
+版本: CAARS:S 完整版 66题（自评版）
+适用年龄: 18 岁以上成人
+结构: 共 66 题，包含 8 个因子
+完成时间: 约 15-20 分钟
+-----------------------------------------------------------------
+一、量表概述
+CAARS 完整版由 Conners 等人于 1999 年编制，是目前成人 ADHD 评估最权威的工具之一。完整版包含 66 个题目，8 个因子，涵盖了成人 ADHD 的核心症状和相关特征，可用于临床诊断、症状严重程度评估和治疗效果监测。
+完整结构：66题，每题 0-3 分，总分范围 0-198。得分越高，ADHD 特征越明显。Q47 为反向计分题。
+二、数据库表结构设计（开发参考 - 66题完整版）
+表名建议: caars_full_assessment
+CREATE TABLE caars_full_assessment (   id BIGINT PRIMARY KEY AUTO_INCREMENT,   subject_id VARCHAR(64), assess_date DATE,   age_years DECIMAL(4,1), gender VARCHAR(8), version VARCHAR(16) COMMENT '自评|观察者',   q01_score  TINYINT  COMMENT 'Q01 (0-3)',   q02_score  TINYINT  COMMENT 'Q02 (0-3)',   q03_score  TINYINT  COMMENT 'Q03 (0-3)',   q04_score  TINYINT  COMMENT 'Q04 (0-3)',   q05_score  TINYINT  COMMENT 'Q05 (0-3)',   q06_score  TINYINT  COMMENT 'Q06 (0-3)',   q07_score  TINYINT  COMMENT 'Q07 (0-3)',   q08_score  TINYINT  COMMENT 'Q08 (0-3)',   q09_score  TINYINT  COMMENT 'Q09 (0-3)',   q10_score  TINYINT  COMMENT 'Q10 (0-3)',   q11_score  TINYINT  COMMENT 'Q11 (0-3)',   q12_score  TINYINT  COMMENT 'Q12 (0-3)',   q13_score  TINYINT  COMMENT 'Q13 (0-3)',   q14_score  TINYINT  COMMENT 'Q14 (0-3)',   q15_score  TINYINT  COMMENT 'Q15 (0-3)',   q16_score  TINYINT  COMMENT 'Q16 (0-3)',   q17_score  TINYINT  COMMENT 'Q17 (0-3)',   q18_score  TINYINT  COMMENT 'Q18 (0-3)',   q19_score  TINYINT  COMMENT 'Q19 (0-3)',   q20_score  TINYINT  COMMENT 'Q20 (0-3)',   q21_score  TINYINT  COMMENT 'Q21 (0-3)',   q22_score  TINYINT  COMMENT 'Q22 (0-3)',   q23_score  TINYINT  COMMENT 'Q23 (0-3)',   q24_score  TINYINT  COMMENT 'Q24 (0-3)',   q25_score  TINYINT  COMMENT 'Q25 (0-3)',   q26_score  TINYINT  COMMENT 'Q26 (0-3)',   q27_score  TINYINT  COMMENT 'Q27 (0-3)',   q28_score  TINYINT  COMMENT 'Q28 (0-3)',   q29_score  TINYINT  COMMENT 'Q29 (0-3)',   q30_score  TINYINT  COMMENT 'Q30 (0-3)',   q31_score  TINYINT  COMMENT 'Q31 (0-3)',   q32_score  TINYINT  COMMENT 'Q32 (0-3)',   q33_score  TINYINT  COMMENT 'Q33 (0-3)',   q34_score  TINYINT  COMMENT 'Q34 (0-3)',   q35_score  TINYINT  COMMENT 'Q35 (0-3)',   q36_score  TINYINT  COMMENT 'Q36 (0-3)',   q37_score  TINYINT  COMMENT 'Q37 (0-3)',   q38_score  TINYINT  COMMENT 'Q38 (0-3)',   q39_score  TINYINT  COMMENT 'Q39 (0-3)',   q40_score  TINYINT  COMMENT 'Q40 (0-3)',   q41_score  TINYINT  COMMENT 'Q41 (0-3)',   q42_score  TINYINT  COMMENT 'Q42 (0-3)',   q43_score  TINYINT  COMMENT 'Q43 (0-3)',   q44_score  TINYINT  COMMENT 'Q44 (0-3)',   q45_score  TINYINT  COMMENT 'Q45 (0-3)',   q46_score  TINYINT  COMMENT 'Q46 (0-3)',   q47_score  TINYINT  COMMENT 'Q47 (0-3)',   q48_score  TINYINT  COMMENT 'Q48 (0-3)',   q49_score  TINYINT  COMMENT 'Q49 (0-3)',   q50_score  TINYINT  COMMENT 'Q50 (0-3)',   q51_score  TINYINT  COMMENT 'Q51 (0-3)',   q52_score  TINYINT  COMMENT 'Q52 (0-3)',   q53_score  TINYINT  COMMENT 'Q53 (0-3)',   q54_score  TINYINT  COMMENT 'Q54 (0-3)',   q55_score  TINYINT  COMMENT 'Q55 (0-3)',   q56_score  TINYINT  COMMENT 'Q56 (0-3)',   q57_score  TINYINT  COMMENT 'Q57 (0-3)',   q58_score  TINYINT  COMMENT 'Q58 (0-3)',   q59_score  TINYINT  COMMENT 'Q59 (0-3)',   q60_score  TINYINT  COMMENT 'Q60 (0-3)',   q61_score  TINYINT  COMMENT 'Q61 (0-3)',   q62_score  TINYINT  COMMENT 'Q62 (0-3)',   q63_score  TINYINT  COMMENT 'Q63 (0-3)',   q64_score  TINYINT  COMMENT 'Q64 (0-3)',   q65_score  TINYINT  COMMENT 'Q65 (0-3)',   q66_score  TINYINT  COMMENT 'Q66 (0-3)',   -- 8个因子分   f_inattention      INT COMMENT '注意缺陷 (0-27)',   f_hyperactivity    INT COMMENT '多动/冲动 (0-21)',   f_impulse_emotion  INT COMMENT '冲动/情绪不稳 (0-27)',   f_problems_self    INT COMMENT '自我概念问题 (0-12)',   f_problems_daily   INT COMMENT '日常生活问题 (0-24)',   f_aspiration      INT COMMENT '成就动机缺乏 (0-15)',   f_concentration   INT COMMENT '专注力不足 (0-24)',   f_sensation       INT COMMENT '寻求新奇刺激 (0-18)',   adhd_index        DECIMAL(5,1) COMMENT 'ADHD指数 (T分数)',   total_score       INT COMMENT '总分 (0-198)',   severity_level    VARCHAR(32) COMMENT 'ADHD症状严重程度',   notes TEXT, created_at DATETIME, updated_at DATETIME );
+
+三、评分规则与选项说明
+每个条目根据过去六个月内行为符合程度进行 0-3 四级评分：
+分值
+符合程度
+中文说明
+0
+完全不符合
+完全不符合你的情况
+1
+有点符合
+有点符合你的情况
+2
+比较符合
+大部分符合你的情况
+3
+完全符合
+完全符合你的情况
+
+只有 Q47 为反向计分题。
+四、完整题目列表（66题 完整版）
+题号
+题目内容
+因子
+01
+很难集中注意力听别人说话
+IN
+02
+很难把一篇文章读完
+IN
+03
+阅读时很难保持注意力
+IN
+04
+很难把事情从头到尾做完
+IN
+05
+组织整理事情有困难
+IN
+06
+很难持续专注在一项任务或工作上
+IN
+07
+需要集中注意力时，很容易被外界干扰
+IN
+08
+忘记约会和其他该做的事
+IN
+09
+做事情慢吞吞，很难开始行动
+IN
+10
+坐不住，手脚动个不停
+HI
+11
+坐着的时候也会扭来扭去，坐立不安
+HI
+12
+在座位上很难安静地待着
+HI
+13
+很难安静地坐着
+HI
+14
+总是忙个不停，好像被马达驱动着
+HI
+15
+参加聚会或会议时，很难安静地坐着
+HI
+16
+总是到处跑、爬上爬下，静不下来
+HI
+17
+想到什么就说什么，不假思索
+IMP
+18
+脾气很难控制
+IMP
+19
+情绪变化很快
+IMP
+20
+一点小事就会让我烦躁
+IMP
+21
+突然会感觉到强烈的愤怒
+IMP
+22
+因为冲动，做过让自己后悔的事
+IMP
+23
+排队等待轮流有困难
+IMP
+24
+忍不住打断别人的谈话
+IMP
+25
+当事情不按我的意思来，我很容易发火
+IMP
+26
+我对自己没有信心
+SELF
+27
+我觉得我做不好任何事情
+SELF
+28
+我对自己不满意
+SELF
+29
+我觉得我和其他人不一样
+SELF
+30
+很难按计划完成工作
+DAILY
+31
+很难遵守指示
+DAILY
+32
+很难把东西整理好
+DAILY
+33
+很难持续努力工作
+DAILY
+34
+很难完成书面作业
+DAILY
+35
+做事情常常半途而废
+DAILY
+36
+很难从头至尾完成一份工作报告
+DAILY
+37
+当你需要做一个新的项目，很难开始行动
+DAILY
+38
+我不会去争取更高的职位或更好的工作
+ASP
+39
+我不想去尝试新的责任
+ASP
+40
+我不期待会有什么成就
+ASP
+41
+我不太在乎能不能把事情做好
+ASP
+42
+我不会去主动争取想要的东西
+ASP
+43
+胡思乱想，很难专注在正在做的事情上
+CONC
+44
+做事情的时候，脑子容易开小差
+CONC
+45
+开车时，很难专注于开车这件事
+CONC
+46
+即使是在开会，也很难专心
+CONC
+47
+我认为我的注意力没有问题（反向计分）
+CONC-R
+48
+说话时，很容易被别的事情干扰思路
+CONC
+49
+很难在脑海里同时记住几件事情
+CONC
+50
+很难从一个活动换到另一个活动
+CONC
+51
+我喜欢从事令人兴奋刺激的活动
+SEN
+52
+我会被新鲜、刺激的事物吸引
+SEN
+53
+我喜欢体验新事物，即使有点冒险
+SEN
+54
+我寻求高强度的刺激和兴奋
+SEN
+55
+我会被危险的活动吸引
+SEN
+56
+我喜欢开快车
+SEN
+57
+我喜欢紧张刺激的电影和表演
+SEN
+58
+我愿意为了刺激去冒点险
+SEN
+59
+我喜欢去人多热闹的地方
+SEN
+60
+我喜欢去拥挤的购物中心
+SEN
+61
+我喜欢参加大型派对
+SEN
+62
+我喜欢去人多的地方
+SEN
+63
+我觉得大城市比小城镇更有趣
+SEN
+64
+我做事情追求刺激
+SEN
+65
+我喜欢生活中有很多变化
+SEN
+66
+我总是寻求新奇和刺激
+SEN
+
+五、因子结构对照表
+缩写
+因子名称
+对应题号
+题目数
+原始分范围
+IN
+注意缺陷
+Q01-Q09
+9
+0-27
+HI
+多动-冲动
+Q10-Q16
+7
+0-21
+IMP
+冲动/情绪不稳
+Q17-Q25
+9
+0-27
+SELF
+自我概念问题
+Q26-Q29
+4
+0-12
+DAILY
+日常生活问题
+Q30-Q37
+8
+0-24
+ASP
+成就动机缺乏
+Q38-Q42
+5
+0-15
+CONC
+专注力不足
+Q43-Q50
+8
+0-24
+SEN
+寻求新奇刺激
+Q51-Q66
+16
+0-48
+
+六、计分算法（开发参考 - 完整版）
+// CAARS 66-item Full Version Scoring Algorithm const CAARS_FULL_FACTORS = {   inattention:      [1,2,3,4,5,6,7,8,9],   hyperactivity:    [10,11,12,13,14,15,16],   impulse_emotion:  [17,18,19,20,21,22,23,24,25],   problems_self:    [26,27,28,29],   problems_daily:   [30,31,32,33,34,35,36,37],   aspiration:      [38,39,40,41,42],   concentration:   [43,44,45,46,47,48,49,50],   sensation:       [51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66], }; const REVERSE = [47];  function calculateCAARSFull(responses) {   const factors = {};   let total = 0;   for (const [name, items] of Object.entries(CAARS_FULL_FACTORS)) {     let sum = 0;     for (const n of items) {       let v = responses['q'+String(n).padStart(2,'0')] || 0;       if (REVERSE.includes(n)) v = 3 - v;       sum += v;     }     factors[name] = sum; total += sum;   }   // ADHA Index: inattention + hyperactivity + impulse_emotion + concentration   const adhd_index_raw = factors.inattention + factors.hyperactivity +      factors.impulse_emotion + factors.concentration;   // T-score approximation   const adhd_index = 50 + (adhd_index_raw - 30) * (10 / 15);   let severity;   if (adhd_index < 50) severity = "低于平均水平";   else if (adhd_index < 60) severity = "轻度ADHD特征";   else if (adhd_index < 70) severity = "中度ADHD特征";   else severity = "高度ADHD特征";   return {     factor_scores: factors,     adhd_index: parseFloat(adhd_index.toFixed(1)),     total_score: total,     severity_level: severity   }; } // CAARS clinical cutoffs: //   ADHD Index T >= 60: clinically significant symptoms //   T >= 70: highly significant 
+
+七、结果解释参考
+ADHD指数 (T分数)
+临床意义
+< 50
+低于平均水平，ADHD特征不明显
+50-59
+轻度ADHD特征
+60-69
+中度ADHD特征，提示可能存在ADHD
+>= 70
+高度ADHD特征，高度提示ADHD
+
+ADHD指数由四个核心因子相加得出：注意缺陷 + 多动冲动 + 冲动情绪 + 专注力不足，是诊断最重要参考。

@@ -1,0 +1,92 @@
+成人阅读障碍检查表
+Dyslexia Adult Checklist (DAC)
+-----------------------------------------------------------------
+版本: 成人阅读障碍检查表（公开筛查版）
+适用年龄: 16 岁以上青少年及成人
+填表方式: 自评
+结构: 共 20 题，包含核心阅读障碍特征
+完成时间: 约 5 分钟
+-----------------------------------------------------------------
+一、量表概述
+成人阅读障碍检查表是针对成人读写困难（ dyslexia，也称为阅读障碍）设计的自评筛查工具，涵盖了成人阅读障碍常见的核心特征：阅读困难、拼写困难、文字处理速度慢、工作记忆问题等。
+完整结构：20题，每题 0-2 分，总分范围 0-40。得分越高，阅读障碍特征越明显。
+二、数据库表结构设计（开发参考）
+表名建议: dyslexia_adult_checklist
+CREATE TABLE dyslexia_adult_checklist (   id BIGINT PRIMARY KEY AUTO_INCREMENT,   subject_id VARCHAR(64), assess_date DATE,   age_years DECIMAL(4,1), gender VARCHAR(8),   q01_score  TINYINT  COMMENT 'Q01 (0-2)',   q02_score  TINYINT  COMMENT 'Q02 (0-2)',   q03_score  TINYINT  COMMENT 'Q03 (0-2)',   q04_score  TINYINT  COMMENT 'Q04 (0-2)',   q05_score  TINYINT  COMMENT 'Q05 (0-2)',   q06_score  TINYINT  COMMENT 'Q06 (0-2)',   q07_score  TINYINT  COMMENT 'Q07 (0-2)',   q08_score  TINYINT  COMMENT 'Q08 (0-2)',   q09_score  TINYINT  COMMENT 'Q09 (0-2)',   q10_score  TINYINT  COMMENT 'Q10 (0-2)',   q11_score  TINYINT  COMMENT 'Q11 (0-2)',   q12_score  TINYINT  COMMENT 'Q12 (0-2)',   q13_score  TINYINT  COMMENT 'Q13 (0-2)',   q14_score  TINYINT  COMMENT 'Q14 (0-2)',   q15_score  TINYINT  COMMENT 'Q15 (0-2)',   q16_score  TINYINT  COMMENT 'Q16 (0-2)',   q17_score  TINYINT  COMMENT 'Q17 (0-2)',   q18_score  TINYINT  COMMENT 'Q18 (0-2)',   q19_score  TINYINT  COMMENT 'Q19 (0-2)',   q20_score  TINYINT  COMMENT 'Q20 (0-2)',   total_score INT COMMENT '总分 (0-40)',   dyslexia_risk VARCHAR(32) COMMENT '阅读障碍风险等级',   notes TEXT, created_at DATETIME, updated_at DATETIME );
+
+三、评分规则与选项说明
+每个条目描述是否符合你的情况，按符合程度评分：
+分值
+符合程度
+中文说明
+0
+不符合
+该描述完全不符合你
+1
+有些符合
+该描述部分符合你
+2
+完全符合
+该描述完全符合你
+
+四、完整题目列表（20题）
+题号
+题目内容
+01
+小时候学习字母发音有困难
+02
+现在阅读时，仍然会漏字错字
+03
+阅读同一页需要反复读好几次才能理解
+04
+拼写单词有困难，经常拼错
+05
+写字很慢，需要花很多时间才能写好
+06
+阅读速度比同龄人慢很多
+07
+理解文字需要比别人更长时间
+08
+很难把想法写下来，变成通顺的句子
+09
+记不住电话号码、门牌号码等数字信息
+10
+记不住人名
+11
+方向感不好，容易迷路
+12
+学习外语很慢很困难
+13
+整理东西，比如整理桌面书架有困难
+14
+按照指示一步步做事情有困难
+15
+学会开车比别人慢很多
+16
+长时间阅读后会感到很累，头疼
+17
+看一行文字会觉得字在动，看不清
+18
+从小就不喜欢阅读，尽量避免读书
+19
+很难准确地发音
+20
+家人也有阅读或拼写困难
+
+五、计分算法与结果解释
+// Dyslexia Adult Checklist Scoring function calculateDAC(responses) {   let total = 0;   for (let n = 1; n <= 20; n++) {     total += responses['q'+String(n).padStart(2,'0')] || 0;   }   let risk;   if (total < 5) risk = '低风险';   else if (total < 15) risk = '中等风险';   else risk = '高风险';   return { total_score: total, dyslexia_risk: risk }; } // Cutoff: total >= 10 suggests possible dyslexia // total >= 15: high probability 
+
+风险等级
+总分范围
+临床参考
+低风险
+0-4
+阅读障碍特征不明显
+中等风险
+5-14
+存在一定特征，建议进一步评估
+高风险
+15-40
+高度可能存在阅读障碍，建议专业评估
+
+DAC 是筛查工具，不能替代专业诊断，高风险者建议转诊专业语言治疗师评估。

@@ -1,0 +1,160 @@
+CAARS 简版 Conners成人ADHD评定量表（26题）
+Conners' Adult ADHD Rating Scales - Short Form (Conners 1999)
+-----------------------------------------------------------------
+版本: CAARS 26题简版（自评版）
+适用年龄: 18 岁以上成人
+结构: 共 26 题，包含 4 个因子
+完成时间: 约 5-10 分钟
+-----------------------------------------------------------------
+一、量表概述
+CAARS 简版是从完整版提取的简短版本，适合快速筛查，包含四个核心因子：注意缺陷/多动、冲动/情绪不稳、自我概念问题、问题性追求新奇。
+完整结构：26题，每题 0-3 分，总分范围 0-78。Q26 为反向计分题。
+二、数据库表结构设计（开发参考 - 26题简版）
+表名建议: caars_short_assessment
+CREATE TABLE caars_short_assessment (   id BIGINT PRIMARY KEY AUTO_INCREMENT,   subject_id VARCHAR(64), assess_date DATE,   age_years DECIMAL(4,1), gender VARCHAR(8), version VARCHAR(16) COMMENT '自评|观察者',   q01_score  TINYINT  COMMENT 'Q01 (0-3)',   q02_score  TINYINT  COMMENT 'Q02 (0-3)',   q03_score  TINYINT  COMMENT 'Q03 (0-3)',   q04_score  TINYINT  COMMENT 'Q04 (0-3)',   q05_score  TINYINT  COMMENT 'Q05 (0-3)',   q06_score  TINYINT  COMMENT 'Q06 (0-3)',   q07_score  TINYINT  COMMENT 'Q07 (0-3)',   q08_score  TINYINT  COMMENT 'Q08 (0-3)',   q09_score  TINYINT  COMMENT 'Q09 (0-3)',   q10_score  TINYINT  COMMENT 'Q10 (0-3)',   q11_score  TINYINT  COMMENT 'Q11 (0-3)',   q12_score  TINYINT  COMMENT 'Q12 (0-3)',   q13_score  TINYINT  COMMENT 'Q13 (0-3)',   q14_score  TINYINT  COMMENT 'Q14 (0-3)',   q15_score  TINYINT  COMMENT 'Q15 (0-3)',   q16_score  TINYINT  COMMENT 'Q16 (0-3)',   q17_score  TINYINT  COMMENT 'Q17 (0-3)',   q18_score  TINYINT  COMMENT 'Q18 (0-3)',   q19_score  TINYINT  COMMENT 'Q19 (0-3)',   q20_score  TINYINT  COMMENT 'Q20 (0-3)',   q21_score  TINYINT  COMMENT 'Q21 (0-3)',   q22_score  TINYINT  COMMENT 'Q22 (0-3)',   q23_score  TINYINT  COMMENT 'Q23 (0-3)',   q24_score  TINYINT  COMMENT 'Q24 (0-3)',   q25_score  TINYINT  COMMENT 'Q25 (0-3)',   q26_score  TINYINT  COMMENT 'Q26 (0-3)',   f_inatt_hyper   INT COMMENT '注意缺陷/多动 (0-24)',   f_impulse_emotion INT COMMENT '冲动/情绪不稳 (0-24)',   f_self_concept   INT COMMENT '自我概念问题 (0-12)',   f_sensation      INT COMMENT '追求新奇 (0-18)',   adhd_index       DECIMAL(5,1) COMMENT 'ADHD指数 (T分数)',   total_score      INT COMMENT '总分 (0-78)',   severity_level   VARCHAR(32) COMMENT '严重程度',   notes TEXT, created_at DATETIME, updated_at DATETIME );
+
+三、评分规则与选项说明
+每个条目根据过去六个月内行为符合程度进行 0-3 四级评分：
+分值
+符合程度
+中文说明
+0
+完全不符合
+完全不符合你的情况
+1
+有点符合
+有点符合你的情况
+2
+比较符合
+大部分符合你的情况
+3
+完全符合
+完全符合你的情况
+
+Q26 为反向计分题。
+四、完整题目列表（26题简版）
+题号
+题目内容
+因子
+01
+很难集中注意力听别人说话
+INH
+02
+阅读时很难保持注意力
+INH
+03
+很难把事情做完从开始到结束
+INH
+04
+整理事情有困难
+INH
+05
+很难持续专注于一项任务
+INH
+06
+坐着的时候感到坐立不安
+INH
+07
+忘记约会或该做的事
+INH
+08
+做事情慢吞吞，很难动起来
+INH
+09
+说话不加思考脱口而出
+IMP
+10
+脾气很难控制
+IMP
+11
+情绪说变就变
+IMP
+12
+遇到小事就烦躁
+IMP
+13
+突然感到强烈的愤怒
+IMP
+14
+因为冲动做了让自己后悔的事
+IMP
+15
+排队等待有困难
+IMP
+16
+打断别人的谈话
+IMP
+17
+对自己没有信心
+SELF
+18
+觉得自己什么都做不好
+SELF
+19
+对自己不满意
+SELF
+20
+觉得自己和别人不一样
+SELF
+21
+我喜欢刺激和兴奋
+SEN
+22
+我会被新鲜和令人兴奋的事情吸引
+SEN
+23
+我喜欢体验新事物，即使有点冒险
+SEN
+24
+我寻求高强度刺激和兴奋
+SEN
+25
+我会被危险的活动吸引
+SEN
+26
+我觉得我是一个很平静的人（反向计分）
+SEN-R
+
+五、因子结构对照表
+因子
+名称
+对应题号
+题目数
+原始分范围
+INH
+注意缺陷/多动
+Q01-Q08
+8
+0-24
+IMP
+冲动/情绪不稳
+Q09-Q16
+8
+0-24
+SELF
+自我概念问题
+Q17-Q20
+4
+0-12
+SEN
+追求新奇
+Q21-Q26
+6
+0-18
+
+六、计分算法（开发参考 - 简版）
+// CAARS 26-item Short Form Scoring const CAARS_SHORT_FACTORS = {   inatt_hyper:   [1,2,3,4,5,6,7,8],   impulse_emotion: [9,10,11,12,13,14,15,16],   self_concept:   [17,18,19,20],   sensation:      [21,22,23,24,25,26], }; const REVERSE = [26];  function calculateCAARSShort(responses) {   const factors = {};   let total = 0;   for (const [name, items] of Object.entries(CAARS_SHORT_FACTORS)) {     let sum = 0;     for (const n of items) {       let v = responses['q'+String(n).padStart(2,'0')] || 0;       if (REVERSE.includes(n)) v = 3 - v;       sum += v;     }     factors[name] = sum; total += sum;   }   // T-score approximation   const adhd_index = 50 + (total - 20) * (10 / 10);   let severity;   if (adhd_index < 50) severity = "低于平均水平";   else if (adhd_index < 60) severity = "轻度ADHD特征";   else if (adhd_index < 70) severity = "中度ADHD特征";   else severity = "高度ADHD特征";   return {     factor_scores: factors,     total_score: total,     adhd_index: parseFloat(adhd_index.toFixed(1)),     severity_level: severity   }; } // CAARS cutoffs: T >= 60 indicates clinically significant symptoms 
+
+七、结果解释参考
+ADHD指数 (T分数)
+临床意义
+< 50
+低于平均水平，ADHD特征不明显
+50-59
+轻度ADHD特征
+60-69
+中度ADHD特征，提示可能存在ADHD
+>= 70
+高度ADHD特征，高度提示ADHD
+
+简版适合快速筛查，完整版提供更全面评估。

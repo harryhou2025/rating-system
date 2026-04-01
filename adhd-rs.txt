@@ -1,0 +1,129 @@
+ADHD-RS-IV ADHD评定量表第四版
+ADHD Rating Scale IV (DuPaul 1998)
+-----------------------------------------------------------------
+版本: ADHD-RS-IV（基于 DSM-IV 标准）
+适用年龄: 6 岁以上儿童至成人
+版本类型: 自评版 / 观察者版
+结构: 共 18 题，包含 2 个因子
+完成时间: 约 5 分钟
+-----------------------------------------------------------------
+一、量表概述
+ADHD-RS-IV 由 DuPaul 等人基于 DSM-IV ADHD 诊断标准编制，每个题目直接对应 DSM-IV 诊断条目中的一条症状，是临床评估 ADHD 症状严重程度最常用工具之一，适用于儿童到成人各个年龄段。
+完整结构：18题，每题0-3分，总分范围0-54。得分越高，ADHD症状越严重。
+二、数据库表结构设计（开发参考）
+表名建议: adhdrs_assessment
+CREATE TABLE adhdrs_assessment (   id BIGINT PRIMARY KEY AUTO_INCREMENT,   subject_id VARCHAR(64), assess_date DATE,   age_years DECIMAL(4,1), gender VARCHAR(8), assessor_type VARCHAR(16),   q01_score  TINYINT  COMMENT 'Q01 (0-3)',   q02_score  TINYINT  COMMENT 'Q02 (0-3)',   q03_score  TINYINT  COMMENT 'Q03 (0-3)',   q04_score  TINYINT  COMMENT 'Q04 (0-3)',   q05_score  TINYINT  COMMENT 'Q05 (0-3)',   q06_score  TINYINT  COMMENT 'Q06 (0-3)',   q07_score  TINYINT  COMMENT 'Q07 (0-3)',   q08_score  TINYINT  COMMENT 'Q08 (0-3)',   q09_score  TINYINT  COMMENT 'Q09 (0-3)',   q10_score  TINYINT  COMMENT 'Q10 (0-3)',   q11_score  TINYINT  COMMENT 'Q11 (0-3)',   q12_score  TINYINT  COMMENT 'Q12 (0-3)',   q13_score  TINYINT  COMMENT 'Q13 (0-3)',   q14_score  TINYINT  COMMENT 'Q14 (0-3)',   q15_score  TINYINT  COMMENT 'Q15 (0-3)',   q16_score  TINYINT  COMMENT 'Q16 (0-3)',   q17_score  TINYINT  COMMENT 'Q17 (0-3)',   q18_score  TINYINT  COMMENT 'Q18 (0-3)',   inatt_score  INT COMMENT '注意缺陷分 (0-27)',   hyper_score  INT COMMENT '多动冲动分 (0-27)',   total_score  INT COMMENT '总分 (0-54)',   inatt_symptom_count INT COMMENT '症状数（score >= 2）',   hyper_symptom_count INT COMMENT '症状数（score >= 2）',   adhd_positive BOOLEAN COMMENT '筛查阳性',   adhd_type VARCHAR(32) COMMENT 'ADHD亚型',   severity_level VARCHAR(32) COMMENT '严重程度',   notes TEXT, created_at DATETIME, updated_at DATETIME );
+
+三、评分规则与选项说明
+每个题目根据症状出现频率进行 0-3 四级评分：
+分值
+频率
+中文说明
+0
+没有或从不
+症状从不出现
+1
+偶尔
+症状偶尔出现
+2
+经常
+症状经常出现
+3
+非常频繁
+症状几乎总是出现
+
+四、完整题目列表（18题）
+题号
+题目内容
+因子
+01
+做作业或其他活动时难以集中注意力
+IN
+02
+做事不能善始善终，不能完成从头到尾
+IN
+03
+容易分心，被外界刺激干扰
+IN
+04
+难以组织任务和活动
+IN
+05
+丢三落四，经常丢失学习或活动必需的东西
+IN
+06
+做需要持续用脑的事情时容易逃避或不喜欢
+IN
+07
+忘记日常活动该做的事
+IN
+08
+在日常生活中丢东西很频繁
+IN
+09
+说话时，别人打断会难以维持思路
+IN
+10
+坐不住，手脚动个不停
+HI
+11
+在座位上扭来扭去，坐立不安
+HI
+12
+在需要坐着的时候会离开座位
+HI
+13
+在不适当的场合过度地跑来跑去爬高爬低
+HI
+14
+很难安静地坐着参加休闲活动
+HI
+15
+总是忙个不停，好像被马达驱动着
+HI
+16
+说话过多，打断别人谈话
+HI
+17
+问题还没说完就抢着回答
+HI
+18
+难以按顺序等待轮流
+HI
+
+五、因子结构对照表
+因子
+对应题号
+题目数
+原始分范围
+注意缺陷
+Q01-Q09
+9
+0-27
+多动冲动
+Q10-Q18
+9
+0-27
+总分
+Q01-Q18
+18
+0-54
+
+六、计分算法（开发参考）
+// ADHD-RS-IV Scoring Algorithm const ADHD_RS_FACTORS = {   inatt: [1,2,3,4,5,6,7,8,9],   hyper: [10,11,12,13,14,15,16,17,18], };  function calculateADHDRS(responses) {   const inatt = ADHD_RS_FACTORS.inatt     .reduce((s,n) => s + (responses['q'+String(n).padStart(2,'0')]||0), 0);   const hyper = ADHD_RS_FACTORS.hyper     .reduce((s,n) => s + (responses['q'+String(n).padStart(2,'0')]||0), 0);   const total = inatt + hyper;   const inatt_sym = ADHD_RS_FACTORS.inatt     .filter(n => (responses['q'+String(n).padStart(2,'0')]||0) >= 2).length;   const hyper_sym = ADHD_RS_FACTORS.hyper     .filter(n => (responses['q'+String(n).padStart(2,'0')]||0) >= 2).length;   let adhd_positive = false, adhd_type;   if (inatt_sym >= 6 && hyper_sym >= 6) {     adhd_positive = true; adhd_type = "混合型ADHD (ADHD-C)";   } else if (inatt_sym >= 6) {     adhd_positive = true; adhd_type = "注意缺陷型ADHD (ADHD-I)";   } else if (hyper_sym >= 6) {     adhd_positive = true; adhd_type = "多动冲动型ADHD (ADHD-HI)";   } else {     adhd_positive = false; adhd_type = "无ADHD";   }   let severity;   if (total <= 12) severity = "轻度";   else if (total <= 28) severity = "中度";   else severity = "重度";   return {     inatt_score: inatt,     hyper_score: hyper,     total_score: total,     inatt_symptom_count: inatt_sym,     hyper_symptom_count: hyper_sym,     adhd_positive, adhd_type, severity_level: severity   }; } // Screening: >= 6 symptoms in one domain + clinical impairment = positive 
+
+七、结果解释参考
+严重程度
+总分范围
+临床参考
+轻度
+0-12
+症状轻微
+中度
+13-28
+中度症状
+重度
+29-54
+重度症状
+
+ADHD-RS-IV 主要用于评估症状严重程度，诊断需要结合功能损害评估和临床访谈。
