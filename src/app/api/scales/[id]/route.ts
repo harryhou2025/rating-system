@@ -44,7 +44,7 @@ export async function GET(
         scaleId: q.scale_id,
         content: q.content,
         type: q.type,
-        options: JSON.parse(q.options),
+        options: typeof q.options === 'string' ? (q.options.startsWith('[') ? JSON.parse(q.options) : q.options.split(',').map(opt => ({ value: opt.trim(), label: opt.trim() }))) : q.options,
         order: q.order,
         scoringType: q.scoring_type,
         dimension: q.dimension,
