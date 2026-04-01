@@ -1869,7 +1869,7 @@ const AdminPage = () => {
                       )}
                       {question.type === 'multiple' && (
                         <div className="space-y-2">
-                          {question.options.split(',').map((option, optionIndex) => (
+                          {question.options.split(',').map((option: string, optionIndex: number) => (
                             <div key={optionIndex} className="flex items-center">
                               <input
                                 type="checkbox"
