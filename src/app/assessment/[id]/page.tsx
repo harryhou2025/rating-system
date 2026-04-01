@@ -42,7 +42,7 @@ const AssessmentPage = () => {
     }
   }, [id]);
 
-  const handleAnswerChange = (questionId, value) => {
+  const handleAnswerChange = (questionId: string, value: string) => {
     // 找到对应的题目，使用 order 作为答案的键
     const question = questions.find(q => q.id === questionId);
     if (question) {
