@@ -260,7 +260,7 @@ const ResultPage: React.FC = () => {
                        key.charAt(0).toUpperCase() + key.slice(1)}
                     </span>
                     <span className="text-gray-700">
-                      {typeof value === 'object' ? JSON.stringify(value) : value}
+                      {typeof value === 'object' ? JSON.stringify(value) : (value as React.ReactNode)}
                     </span>
                   </div>
                 ))}

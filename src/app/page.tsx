@@ -29,7 +29,7 @@ const HomePage: React.FC = () => {
         setScales(activeScales);
         
         // 提取所有分类
-        const uniqueCategories = ['全部', ...new Set(activeScales.map((scale: any) => scale.category))];
+        const uniqueCategories = ['全部', ...new Set(activeScales.map((scale: any) => scale.category))] as string[];
         setCategories(uniqueCategories);
       } catch (err) {
         console.error('加载量表失败:', err);

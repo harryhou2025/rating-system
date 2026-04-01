@@ -4,7 +4,7 @@ import { verifyToken } from '@/lib/auth';
 
 // 管理员权限中间件
 function withAdminAuth(handler: Function) {
-  return async (request: Request, { params }: { params: { id: string } }) => {
+  return async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
     try {
       const authHeader = request.headers.get('authorization');
       if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -24,7 +24,8 @@ function withAdminAuth(handler: Function) {
         );
       }
 
-      return await handler(request, { params });
+      const resolvedParams = await params;
+      return await handler(request, { params: resolvedParams });
     } catch (error) {
       console.error('Auth error:', error);
       return NextResponse.json(

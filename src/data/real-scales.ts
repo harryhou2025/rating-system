@@ -470,7 +470,7 @@ phq9Questions.forEach((content, index) => {
 });
 
 // SAS 题目
-const sasQuestions = [
+const sasQuestions: Array<{ text: string; type: 'forward' | 'reverse' }> = [
   { text: '我觉得比平常容易紧张和着急', type: 'forward' },
   { text: '我无缘无故地感到害怕', type: 'forward' },
   { text: '我容易心里烦乱或觉得惊恐', type: 'forward' },
@@ -506,7 +506,7 @@ sasQuestions.forEach((q, index) => {
 });
 
 // SDS 题目
-const sdsQuestions = [
+const sdsQuestions: Array<{ text: string; type: 'forward' | 'reverse' }> = [
   { text: '我觉得闷闷不乐，情绪低沉', type: 'forward' },
   { text: '我觉得一天中早晨最好', type: 'reverse' },
   { text: '我一阵阵哭出来或觉得想哭', type: 'forward' },
@@ -607,7 +607,7 @@ carsQuestions.forEach((content, index) => {
 });
 
 // AQ 题目（完整50题）
-const aqQuestions = [
+const aqQuestions: Array<{ text: string; type: 'forward' | 'reverse'; dimension: string }> = [
   { text: '更喜欢按日程行事', type: 'forward', dimension: 'social_skill' },
   { text: '确保表述足够清晰', type: 'forward', dimension: 'social_skill' },
   { text: '任务间切换困难', type: 'reverse', dimension: 'attention_switch' },
@@ -812,7 +812,7 @@ dcdqQuestions.forEach((q, index) => {
 });
 
 // RCADS 题目（完整47题）
-const rcadsQuestions = [
+const rcadsQuestions: Array<{ text: string; dimension: string; scoringType?: 'forward' | 'reverse' }> = [
   { text: '我担心事情会出差错', dimension: '广泛性焦虑' },
   { text: '我感到心情愉快/我有好的心情', dimension: '重性抑郁', scoringType: 'reverse' },
   { text: '我担心其他人可能会不喜欢我', dimension: '社交焦虑' },
