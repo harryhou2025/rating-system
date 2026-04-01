@@ -12,7 +12,7 @@ const AssessmentPage = () => {
   const id = params.id as string;
   
   const [scale, setScale] = React.useState(null);
-  const [questions, setQuestions] = React.useState([]);
+  const [questions, setQuestions] = React.useState<Array<{ id: string; scaleId: string; content: string; type: string; options: any; order: number; scoringType: string; dimension: string }>>([]);
   const [currentQuestion, setCurrentQuestion] = React.useState(0);
   const [answers, setAnswers] = React.useState({});
   const [isLoading, setIsLoading] = React.useState(true);
