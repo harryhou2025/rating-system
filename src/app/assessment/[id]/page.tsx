@@ -194,7 +194,7 @@ const AssessmentPage = () => {
     className: 'text-lg mb-8'
   }, currentQ.content), React.createElement('div', {
     className: 'space-y-4'
-  }, currentQ.options?.map((option) => React.createElement('div', {
+  }, currentQ.options?.map((option: { value: string; label: string }) => React.createElement('div', {
     key: option.value,
     className: 'flex items-center'
   }, React.createElement('input', {
