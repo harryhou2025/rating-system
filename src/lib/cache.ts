@@ -1,4 +1,4 @@
-import { unstable_cacheLife as cacheLife } from 'next/cache';
+
 
 export const CACHE_REVALIDATION = {
   SHORT: 60, // 1分钟
