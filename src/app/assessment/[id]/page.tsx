@@ -11,7 +11,7 @@ const AssessmentPage = () => {
   const params = useParams();
   const id = params.id as string;
   
-  const [scale, setScale] = React.useState(null);
+  const [scale, setScale] = React.useState<{ id: string; title: string; description: string; category: string; targetAudience: string; estimatedTime: number; instructions: string; resultInterpretation: string; isActive: boolean; questions: any[] } | null>(null);
   const [questions, setQuestions] = React.useState<Array<{ id: string; scaleId: string; content: string; type: string; options: any; order: number; scoringType: string; dimension: string }>>([]);
   const [currentQuestion, setCurrentQuestion] = React.useState(0);
   const [answers, setAnswers] = React.useState<Record<string, string | string[]>>({});
