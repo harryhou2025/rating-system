@@ -1887,7 +1887,7 @@ const AdminPage = () => {
                                   } else {
                                     setPreviewAnswers({
                                       ...previewAnswers,
-                                      [question.id]: currentAnswers.filter(item => item !== option)
+                                      [question.id]: currentAnswers.filter((item: string) => item !== option)
                                     });
                                   }
                                 }}
