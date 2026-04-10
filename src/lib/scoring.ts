@@ -954,6 +954,8 @@ export function calculateScore(scaleId: string, answers: Record<string, number>)
       return calculateIDA(answers);
     case 'hsps-scale':
       return calculateHSPS(answers);
+    case 'psi-sf-scale':
+      return calculatePSI_SF(answers);
     default:
       return {
         totalScore: 0,
@@ -1727,5 +1729,22 @@ export function calculateCONNERS3TEACHER(answers: Record<string, number>): Scori
         total: '0-315',
       },
     },
+  };
+}
+
+export function calculatePSI_SF(answers: Record<string, number>): ScoringResult {
+  const values = Object.values(answers);
+  const totalScore = values.reduce((sum, val) => sum + (val || 0), 0);
+  
+  let recommendation = '你的养育压力处于正常范围。';
+  if (totalScore > 84) {
+    recommendation = '你的养育压力较高，建议寻求专业支持和帮助。';
+  } else if (totalScore >= 72) {
+    recommendation = '你的养育压力处于中等水平，建议适当调整生活节奏，寻求支持。';
+  }
+  
+  return {
+    totalScore,
+    recommendation,
   };
 }

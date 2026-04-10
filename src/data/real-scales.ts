@@ -48,6 +48,7 @@ const caarsFullId = 'caars-full-scale';
 const dacId = 'dac-scale';
 const idaId = 'ida-scale';
 const hspsId = 'hsps-scale';
+const psiSfId = 'psi-sf-scale';
 
 export const scales: Scale[] = [
   {
@@ -336,6 +337,17 @@ export const scales: Scale[] = [
     resultInterpretation: '量表包含27个题目，评估高度敏感人格特质。得分越高，敏感程度越高。具体结果请咨询专业心理师。',
     isActive: true,
   },
+  {
+    id: psiSfId,
+    title: 'PSI-SF 家长养育压力量表简版',
+    description: 'PSI-SF（Parenting Stress Index – Short Form）是由Richard R. Abidin编制的家长养育压力评估工具，适用于评估1个月至12岁子女父母的养育压力水平。量表包含36个正式题目，分为父母苦恼（PD）、亲子互动失调（P-CDI）和困难儿童（DC）三个分量表，另有7个防御性应答题目用于检测回答真实性。',
+    category: '家庭评估',
+    targetAudience: '1个月至12岁子女的父母/主要养育者',
+    estimatedTime: 15,
+    instructions: '请根据你作为家长的实际感受，对每个问题进行评分。评分标准：1=强烈同意，2=同意，3=不确定，4=不同意，5=强烈不同意。',
+    resultInterpretation: '量表包含三个分量表：父母苦恼（PD）、亲子互动失调（P-CDI）和困难儿童（DC）。得分越高，养育压力越大。总压力得分≤71分为正常范围，72-84分为中等压力，>84分为高压力（需关注）。',
+    isActive: true,
+  },
 ];
 
 const frequencyOptions = [
@@ -419,6 +431,14 @@ const conners3Options = [
   { value: 1, label: '偶尔有' },
   { value: 2, label: '时常有' },
   { value: 3, label: '总是有' },
+];
+
+const psiSfOptions = [
+  { value: 1, label: '强烈同意' },
+  { value: 2, label: '同意' },
+  { value: 3, label: '不确定' },
+  { value: 4, label: '不同意' },
+  { value: 5, label: '强烈不同意' },
 ];
 
 export const questions: ScaleQuestion[] = [];
@@ -2097,4 +2117,73 @@ hspsQuestions.forEach((q, index) => {
   });
 });
 
-export { gad7Id, phq9Id, sasId, sdsId, scl90Id, mchatId, carsId, aqId, dcdqId, rcadsId, scaredId, snapivId, vanderbiltId, conners3ParentId, conners3TeacherId, srs2Id, gars3Id, catqId, catiId, brownId, adhdrsId, caarsSimpleId, caarsFullId, dacId, idaId, hspsId };
+// PSI-SF 家长养育压力量表简版题目（完整43题）
+const psiSfQuestions = [
+  // PD（父母苦恼）Q01-Q12
+  { text: '我比预期的要更频繁地感到作为家长力不从心。', dimension: 'PD' },
+  { text: '自从有了孩子以后，我很少有时间来做自己想做的事。', dimension: 'PD' },
+  { text: '有了孩子以后，我感到很难安排好一天的生活。', dimension: 'PD' },
+  { text: '我经常觉得自己在育儿方面做得不够好。', dimension: 'PD' },
+  { text: '有了孩子以后，我经常感到沮丧和压抑。', dimension: 'PD' },
+  { text: '有了孩子以后，我不像以前那样讨人喜欢了。', dimension: 'PD' },
+  { text: '有了孩子以后，我发现自己不像以前那样享受生活了。', dimension: 'PD' },
+  { text: '我对自己作为家长的能力感到担忧。', dimension: 'PD' },
+  { text: '有了孩子以后，我的生活变得不如意了。', dimension: 'PD' },
+  { text: '有了孩子以后，我的自尊心受到了打击。', dimension: 'PD' },
+  { text: '我经常觉得自己在育儿方面没有得到足够的支持。', dimension: 'PD' },
+  { text: '有了孩子以后，我的婚姻/伴侣关系出现了问题。', dimension: 'PD' },
+  
+  // P-CDI（亲子互动失调）Q13-Q24
+  { text: '孩子总是向我提出很多要求。', dimension: 'PCDI' },
+  { text: '养育孩子花费的精力超出了我的预期。', dimension: 'PCDI' },
+  { text: '我的孩子很少做出让我感到高兴的事情。', dimension: 'PCDI' },
+  { text: '我发现养育孩子是一件非常累人的事情。', dimension: 'PCDI' },
+  { text: '和孩子在一起时，我经常感到烦恼。', dimension: 'PCDI' },
+  { text: '我对孩子的未来感到担心。', dimension: 'PCDI' },
+  { text: '我的孩子似乎不像其他孩子那样喜欢我。', dimension: 'PCDI' },
+  { text: '我的孩子对我表达爱意的方式令我感到满意。', dimension: 'PCDI' },
+  { text: '当我看着孩子的照片时，我很少感到骄傲。', dimension: 'PCDI' },
+  { text: '我有时担心孩子会出事。', dimension: 'PCDI' },
+  { text: '我觉得孩子没有我想象的那么可爱。', dimension: 'PCDI' },
+  { text: '我对孩子的行为感到失望。', dimension: 'PCDI' },
+  
+  // DC（困难儿童）Q25-Q36
+  { text: '我的孩子睡眠不太好。', dimension: 'DC' },
+  { text: '我的孩子食欲不太好。', dimension: 'DC' },
+  { text: '我的孩子精力过于旺盛。', dimension: 'DC' },
+  { text: '我的孩子难以适应新环境。', dimension: 'DC' },
+  { text: '我的孩子与其他孩子相处时容易出现问题。', dimension: 'DC' },
+  { text: '我的孩子情绪波动较大。', dimension: 'DC' },
+  { text: '我的孩子很难被安抚。', dimension: 'DC' },
+  { text: '我的孩子需要比其他孩子更多的关注。', dimension: 'DC' },
+  { text: '我的孩子容易感到不安和焦虑。', dimension: 'DC' },
+  { text: '我的孩子对日常变化反应强烈。', dimension: 'DC' },
+  { text: '我的孩子会无缘无故地发脾气。', dimension: 'DC' },
+  { text: '我的孩子似乎比同龄孩子发育慢一些。', dimension: 'DC' },
+  
+  // DR（防御性应答）Q37-Q43
+  { text: '我从来不会对我的孩子感到沮丧。', dimension: 'DR' },
+  { text: '我的孩子从不让我感到尴尬。', dimension: 'DR' },
+  { text: '我从来没有对自己的育儿方式感到后悔。', dimension: 'DR' },
+  { text: '我从不担心自己作为家长做得不够好。', dimension: 'DR' },
+  { text: '我的孩子从来没有让我感到失望过。', dimension: 'DR' },
+  { text: '我从不觉得自己对孩子的情绪反应过度。', dimension: 'DR' },
+  { text: '我从来不为孩子的行为感到担心。', dimension: 'DR' },
+];
+
+// 验证题目数量
+console.log('PSI-SF 家长养育压力量表简版题目数量:', psiSfQuestions.length);
+
+psiSfQuestions.forEach((q, index) => {
+  questions.push({
+    id: uuidv4(),
+    scaleId: psiSfId,
+    content: q.text,
+    type: 'single',
+    options: psiSfOptions,
+    order: index + 1,
+    dimension: q.dimension,
+  });
+});
+
+export { gad7Id, phq9Id, sasId, sdsId, scl90Id, mchatId, carsId, aqId, dcdqId, rcadsId, scaredId, snapivId, vanderbiltId, conners3ParentId, conners3TeacherId, srs2Id, gars3Id, catqId, catiId, brownId, adhdrsId, caarsSimpleId, caarsFullId, dacId, idaId, hspsId, psiSfId };
