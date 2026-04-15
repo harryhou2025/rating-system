@@ -2,6 +2,44 @@
 @tailwind components;
 @tailwind utilities;
 
+/* 靛蓝之家官网配色变量 */
+:root {
+  --color-primary-50: #e0f2f1;
+  --color-primary-100: #b2dfdb;
+  --color-primary-200: #80cbc4;
+  --color-primary-300: #4db6ac;
+  --color-primary-400: #26a69a;
+  --color-primary-500: #0d4d4d;
+  --color-primary-600: #0a3d3d;
+  --color-primary-700: #082d2d;
+  --color-primary-800: #061d1d;
+  --color-primary-900: #040d0d;
+  --color-teal-400: #26a69a;
+  --color-teal-500: #0d4d4d;
+  --color-teal-600: #1a7f7f;
+  --color-bg-default: #f5f5f5;
+  --color-bg-paper: #ffffff;
+  --color-text-primary: #1f2937;
+  --color-text-secondary: #6b7280;
+  --color-text-on-primary: #ffffff;
+}
+
+/* 渐变背景 */
+.bg-gradient-teal {
+  background: linear-gradient(135deg, var(--color-teal-500) 0%, var(--color-teal-600) 100%);
+}
+
+/* 卡片边框 */
+.card-border-teal {
+  border: 2px solid var(--color-teal-400);
+}
+
+/* 强调色左侧边框 */
+.border-left-teal {
+  border-left: 4px solid var(--color-teal-400);
+  background: linear-gradient(90deg, var(--color-primary-50), white);
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;

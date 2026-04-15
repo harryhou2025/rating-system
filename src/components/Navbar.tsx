@@ -3,11 +3,10 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { UserCircle } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import Image from 'next/image';
 
 const Navbar: React.FC = () => {
-  const router = useRouter();
   const [user, setUser] = React.useState<any>(null);
 
   // 检查token是否过期
@@ -51,14 +50,6 @@ const Navbar: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const handleLogin = () => {
-    router.push('/login');
-  };
-
-  const handleProfile = () => {
-    router.push('/profile');
-  };
-
   return (
     <nav className="bg-white shadow-md border-b-4 border-teal-600">
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
@@ -76,29 +67,32 @@ const Navbar: React.FC = () => {
         </div>
         <div className="flex items-center gap-4">
           {user ? (
-            <Button
-              onClick={handleProfile}
-              variant="ghost"
-              className="rounded-full p-2 hover:bg-teal-100"
-            >
-              <UserCircle className="h-6 w-6 text-teal-700" />
-            </Button>
-          ) : (
-            <>
-              <Button 
-                onClick={handleLogin} 
-                variant="outline"
-                className="border-teal-600 text-teal-700 hover:bg-teal-50"
-              >
-                登录
-              </Button>
+            <Link href="/profile">
               <Button
-                onClick={handleLogin}
                 variant="ghost"
                 className="rounded-full p-2 hover:bg-teal-100"
               >
                 <UserCircle className="h-6 w-6 text-teal-700" />
               </Button>
+            </Link>
+          ) : (
+            <>
+              <Link href="/login">
+                <Button 
+                  variant="outline"
+                  className="border-teal-600 text-teal-700 hover:bg-teal-50"
+                >
+                  登录
+                </Button>
+              </Link>
+              <Link href="/login">
+                <Button
+                  variant="ghost"
+                  className="rounded-full p-2 hover:bg-teal-100"
+                >
+                  <UserCircle className="h-6 w-6 text-teal-700" />
+                </Button>
+              </Link>
             </>
           )}
         </div>

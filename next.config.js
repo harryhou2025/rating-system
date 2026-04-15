@@ -4,6 +4,19 @@ const nextConfig = {
     serverActions: {
       bodySizeLimit: '2mb',
     },
+    optimizePackageImports: [],
+  },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'trae-api-cn.mchost.guru',
+      },
+    ],
+  },
+  reactStrictMode: false,
+  compiler: {
+    removeConsole: false,
   },
 };
 

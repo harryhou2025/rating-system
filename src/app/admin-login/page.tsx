@@ -6,12 +6,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Link } from '@/components/ui/link';
-import { useRouter } from 'next/navigation';
+
 import Image from 'next/image';
 import { Shield, AlertCircle } from 'lucide-react';
 
 const AdminLoginPage: React.FC = () => {
-  const router = useRouter();
   const [formData, setFormData] = React.useState({
     email: '',
     password: ''
@@ -70,7 +69,7 @@ const AdminLoginPage: React.FC = () => {
       localStorage.setItem('user', JSON.stringify(data.user));
       
       // 跳转到管理后台
-      router.push('/admin');
+      window.location.href = '/admin';
     } catch (err) {
       setError(err instanceof Error ? err.message : '登录失败');
     } finally {

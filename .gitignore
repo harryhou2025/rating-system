@@ -32,3 +32,14 @@ yarn-error.log*
 # TypeScript
 *.tsbuildinfo
 next-env.d.ts
+
+# Database files
+*.db
+*.db-shm
+*.db-wal
+rating_sys.db
+
+# Temporary files
+.superpowers
+docs/superpowers
+read-pdf*.py

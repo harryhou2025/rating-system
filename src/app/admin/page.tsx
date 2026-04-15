@@ -7,11 +7,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { Users, LogOut, Scale, FileText, Activity, Shield, Home, Download, List, BarChart3, ChevronUp, ChevronDown } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+
 import Image from 'next/image';
 
 const AdminPage = () => {
-  const router = useRouter();
   const [user, setUser] = React.useState<any>(null);
   const [isAuthorized, setIsAuthorized] = React.useState(false);
   const [activeMenu, setActiveMenu] = React.useState('dashboard');
@@ -92,13 +91,13 @@ const AdminPage = () => {
     const token = localStorage.getItem('token');
     
     if (!userStr || !token) {
-      router.push('/admin-login');
+      window.location.href = '/admin-login';
       return;
     }
 
     const userData = JSON.parse(userStr);
     if (userData.role !== 'admin') {
-      router.push('/');
+      window.location.href = '/';
       return;
     }
 
@@ -128,14 +127,14 @@ const AdminPage = () => {
     };
 
     fetchStats();
-  }, [router]);
+  }, []);
 
   const COLORS = ['#0d9488', '#0891b2', '#059669', '#d97706', '#7c3aed', '#dc2626', '#ea580c', '#65a30d'];
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    router.push('/admin-login');
+    window.location.href = '/admin-login';
   };
 
   const handleCreateScale = async () => {
