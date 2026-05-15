@@ -42,18 +42,15 @@ const AssessmentPage = () => {
   }, [id]);
 
   const handleAnswerChange = (questionId: string, value: string) => {
-    const question = questions.find(q => q.id === questionId);
-    if (question) {
-      setAnswers(prev => ({
-        ...prev,
-        [`q${question.order}`]: value
-      }));
-    }
+    setAnswers(prev => ({
+      ...prev,
+      [questionId]: value
+    }));
   };
 
   const handleSubmit = async () => {
     try {
-      const allAnswered = questions.every(q => answers[`q${q.order}`] !== undefined);
+      const allAnswered = questions.every(q => answers[q.id] !== undefined);
       if (!allAnswered) {
         alert('请回答所有题目');
         return;
@@ -216,18 +213,18 @@ const AssessmentPage = () => {
               <div
                 key={option.value}
                 className={`flex items-center p-4 rounded-xl cursor-pointer transition-all duration-300 ${
-                  answers[`q${currentQ.order}`] === option.value 
+                  answers[currentQ.id] === option.value 
                     ? 'bg-gradient-to-r from-teal-500/20 to-cyan-500/20 border border-teal-500/30' 
                     : 'bg-white/5 border border-white/10 hover:bg-white/10'
                 }`}
                 onClick={() => handleAnswerChange(currentQ.id, option.value)}
               >
                 <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center mr-4 transition-all duration-300 ${
-                  answers[`q${currentQ.order}`] === option.value 
+                  answers[currentQ.id] === option.value 
                     ? 'border-teal-500 bg-teal-500' 
                     : 'border-white/30'
                 }`}>
-                  {answers[`q${currentQ.order}`] === option.value && (
+                  {answers[currentQ.id] === option.value && (
                     <div className="w-2 h-2 rounded-full bg-white" />
                   )}
                 </div>
@@ -265,7 +262,7 @@ const AssessmentPage = () => {
           ) : (
             <button
               onClick={() => {
-                if (answers[`q${currentQ.order}`] === undefined) {
+                if (answers[currentQ.id] === undefined) {
                   alert('请先选择答案');
                   return;
                 }

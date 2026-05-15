@@ -900,7 +900,42 @@ export function calculateCONNERS3PARENT(answers: Record<string, number>): Scorin
   };
 }
 
+import { questions as scaleQuestions } from '@/data/real-scales';
+
+function buildQuestionOrderMap(): Map<string, number> {
+  const map = new Map<string, number>();
+  for (const q of scaleQuestions) {
+    map.set(q.id, q.order);
+  }
+  return map;
+}
+
+const questionOrderMap = buildQuestionOrderMap();
+
+function isUUIDKey(key: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(key);
+}
+
+function normalizeAnswers(answers: Record<string, number>): Record<string, number> {
+  const keys = Object.keys(answers);
+  if (keys.length === 0) return answers;
+
+  if (isUUIDKey(keys[0])) {
+    const normalized: Record<string, number> = {};
+    for (const [questionId, value] of Object.entries(answers)) {
+      const order = questionOrderMap.get(questionId);
+      if (order !== undefined) {
+        normalized[`q${order}`] = value;
+      }
+    }
+    return normalized;
+  }
+
+  return answers;
+}
+
 export function calculateScore(scaleId: string, answers: Record<string, number>): ScoringResult {
+  answers = normalizeAnswers(answers);
   switch (scaleId) {
     case 'gad7-scale':
       return calculateGAD7(answers);
@@ -1733,18 +1768,47 @@ export function calculateCONNERS3TEACHER(answers: Record<string, number>): Scori
 }
 
 export function calculatePSI_SF(answers: Record<string, number>): ScoringResult {
-  const values = Object.values(answers);
-  const totalScore = values.reduce((sum, val) => sum + (val || 0), 0);
-  
-  let recommendation = '你的养育压力处于正常范围。';
+  const pdItems = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+  const pcdiItems = [13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24];
+  const dcItems = [25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36];
+
+  const pdScore = pdItems.reduce((sum, num) => sum + (answers[`q${num}`] || 1), 0);
+  const pcdiScore = pcdiItems.reduce((sum, num) => sum + (answers[`q${num}`] || 1), 0);
+  const dcScore = dcItems.reduce((sum, num) => sum + (answers[`q${num}`] || 1), 0);
+  const totalScore = pdScore + pcdiScore + dcScore;
+
+  let severity: string;
+  let recommendation: string;
+
   if (totalScore > 84) {
+    severity = '高压';
     recommendation = '你的养育压力较高，建议寻求专业支持和帮助。';
   } else if (totalScore >= 72) {
+    severity = '中等压力';
     recommendation = '你的养育压力处于中等水平，建议适当调整生活节奏，寻求支持。';
+  } else {
+    severity = '正常';
+    recommendation = '你的养育压力处于正常范围。';
   }
-  
+
   return {
     totalScore,
+    severity,
     recommendation,
+    details: {
+      parentalDistress: pdScore,
+      parentChildDysfunctionalInteraction: pcdiScore,
+      difficultChild: dcScore,
+      range: '36-180',
+      factorRanges: {
+        parentalDistress: '12-60',
+        parentChildDysfunctionalInteraction: '12-60',
+        difficultChild: '12-60',
+      },
+      cutoffs: {
+        clinicalThreshold: 84,
+        borderlineThreshold: 72,
+      },
+    },
   };
 }

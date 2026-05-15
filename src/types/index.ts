@@ -46,10 +46,11 @@ export interface Assessment {
 }
 
 export interface AssessmentResult {
-  score: number;
-  interpretation: string;
-  recommendations: string[];
-  riskLevel: 'low' | 'medium' | 'high';
+  totalScore: number;
+  severity?: string;
+  riskLevel?: string;
+  recommendation: string;
+  details?: Record<string, any>;
 }
 
 export interface Statistics {
