@@ -7,8 +7,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { Users, LogOut, Scale, FileText, Activity, Shield, Home, Download, List, BarChart3, ChevronUp, ChevronDown } from 'lucide-react';
-
 import Image from 'next/image';
+import { useToast } from '@/components/ui/toast';
 
 const AdminPage = () => {
   const [user, setUser] = React.useState<any>(null);
@@ -84,6 +84,7 @@ const AdminPage = () => {
   const [statsLoading, setStatsLoading] = React.useState(false);
   const [searchTitle, setSearchTitle] = React.useState('');
   const [searchCategory, setSearchCategory] = React.useState('');
+  const { toast } = useToast();
 
   React.useEffect(() => {
     // 检查用户是否已登录且是管理员
@@ -188,7 +189,7 @@ const AdminPage = () => {
         });
         // 重新获取量表列表
         handleMenuClick('scales');
-        alert('量表创建成功');
+        toast('success', '量表创建成功');
       } else {
         const errorData = await response.json();
         setCreateFormError(errorData.error || '创建量表失败');
@@ -254,7 +255,7 @@ const AdminPage = () => {
         });
         // 重新获取量表列表
         handleMenuClick('scales');
-        alert('量表编辑成功');
+        toast('success', '量表编辑成功');
       } else {
         const errorData = await response.json();
         setEditFormError(errorData.error || '编辑量表失败');
@@ -283,11 +284,11 @@ const AdminPage = () => {
         const data = await response.json();
         setQuestions(data);
       } else {
-        alert('获取题目列表失败');
+        toast('error', '获取题目列表失败');
       }
     } catch (error) {
       console.error('Error fetching questions:', error);
-      alert('获取题目列表失败');
+      toast('error', '获取题目列表失败');
     } finally {
       setQuestionsLoading(false);
       setShowQuestionsModal(true);
@@ -337,7 +338,7 @@ const AdminPage = () => {
         });
         // 重新获取题目列表
         handleOpenQuestionsModal(currentScaleId);
-        alert('题目添加成功');
+        toast('success', '题目添加成功');
       } else {
         const errorData = await response.json();
         setAddQuestionError(errorData.error || '添加题目失败');
@@ -395,7 +396,7 @@ const AdminPage = () => {
         });
         // 重新获取题目列表
         handleOpenQuestionsModal(currentScaleId);
-        alert('题目编辑成功');
+        toast('success', '题目编辑成功');
       } else {
         const errorData = await response.json();
         setEditQuestionError(errorData.error || '编辑题目失败');
@@ -426,14 +427,14 @@ const AdminPage = () => {
         if (response.ok) {
           // 重新获取题目列表
           handleOpenQuestionsModal(currentScaleId);
-          alert('题目删除成功');
+          toast('success', '题目删除成功');
         } else {
           const errorData = await response.json();
-          alert(errorData.error || '删除题目失败');
+          toast('error', errorData.error || '删除题目失败');
         }
       } catch (error) {
         console.error('Error deleting question:', error);
-        alert('删除题目失败');
+        toast('error', '删除题目失败');
       }
     }
   };
@@ -455,14 +456,14 @@ const AdminPage = () => {
       if (response.ok) {
         // 重新获取题目列表
         handleOpenQuestionsModal(currentScaleId);
-        alert('题目顺序调整成功');
+        toast('success', '题目顺序调整成功');
       } else {
         const errorData = await response.json();
-        alert(errorData.error || '调整题目顺序失败');
+        toast('error', errorData.error || '调整题目顺序失败');
       }
     } catch (error) {
       console.error('Error reordering questions:', error);
-      alert('调整题目顺序失败');
+      toast('error', '调整题目顺序失败');
     }
   };
 
@@ -484,11 +485,11 @@ const AdminPage = () => {
         setPreviewQuestions(questionsData);
         setPreviewAnswers({});
       } else {
-        alert('获取题目列表失败');
+        toast('error', '获取题目列表失败');
       }
     } catch (error) {
       console.error('Error fetching preview data:', error);
-      alert('获取预览数据失败');
+      toast('error', '获取预览数据失败');
     } finally {
       setPreviewLoading(false);
       setShowPreviewModal(true);
@@ -496,8 +497,7 @@ const AdminPage = () => {
   };
 
   const handlePreviewSubmit = () => {
-    // 模拟提交
-    alert('预览提交成功！这只是一个预览，不会保存实际数据。');
+    toast('info', '预览提交成功！这只是一个预览，不会保存实际数据。');
     setShowPreviewModal(false);
     setPreviewScale(null);
     setPreviewQuestions([]);
@@ -526,11 +526,10 @@ const AdminPage = () => {
             const usersData = await usersResponse.json();
             setUsers(usersData);
           } else {
-            alert('获取用户列表失败');
+            toast('error', '获取用户列表失败');
           }
           break;
         case 'assessments':
-          // 获取测评记录
           const assessmentsResponse = await fetch('/api/admin/assessments', {
             headers: {
               'Authorization': `Bearer ${token}`
@@ -540,11 +539,10 @@ const AdminPage = () => {
             const assessmentsData = await assessmentsResponse.json();
             setAssessments(assessmentsData);
           } else {
-            alert('获取测评记录失败');
+            toast('error', '获取测评记录失败');
           }
           break;
         case 'scales':
-          // 获取量表列表
           const scalesResponse = await fetch('/api/admin/scales', {
             headers: {
               'Authorization': `Bearer ${token}`
@@ -554,7 +552,7 @@ const AdminPage = () => {
             const scalesData = await scalesResponse.json();
             setScales(scalesData);
           } else {
-            alert('获取量表列表失败');
+            toast('error', '获取量表列表失败');
           }
           break;
         default:
@@ -562,7 +560,7 @@ const AdminPage = () => {
       }
     } catch (error) {
       console.error('Error fetching data:', error);
-      alert('获取数据失败');
+      toast('error', '获取数据失败');
     } finally {
       setLoading(false);
     }
@@ -1159,14 +1157,13 @@ const AdminPage = () => {
                                           })
                                         });
                                         if (response.ok) {
-                                          // 重新获取量表列表
                                           handleMenuClick('scales');
                                         } else {
-                                          alert('操作失败');
+                                          toast('error', '操作失败');
                                         }
                                       } catch (error) {
                                         console.error('Error toggling scale status:', error);
-                                        alert('操作失败');
+                                        toast('error', '操作失败');
                                       }
                                     }
                                   }}
@@ -1191,16 +1188,15 @@ const AdminPage = () => {
                                           })
                                         });
                                         if (response.ok) {
-                                          // 重新获取量表列表
                                           handleMenuClick('scales');
-                                          alert('量表删除成功');
+                                          toast('success', '量表删除成功');
                                         } else {
                                           const errorData = await response.json();
-                                          alert(errorData.error || '删除量表失败');
+                                          toast('error', errorData.error || '删除量表失败');
                                         }
                                       } catch (error) {
                                         console.error('Error deleting scale:', error);
-                                        alert('删除量表失败');
+                                        toast('error', '删除量表失败');
                                       }
                                     }
                                   }}

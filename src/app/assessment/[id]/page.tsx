@@ -5,6 +5,7 @@ import React from 'react';
 import Link from 'next/link';
 import { ArrowLeft, ArrowRight, Clock, Users, BookOpen } from 'lucide-react';
 import Image from 'next/image';
+import { useToast } from '@/components/ui/toast';
 
 const AssessmentPage = () => {
   const params = useParams();
@@ -16,6 +17,8 @@ const AssessmentPage = () => {
   const [answers, setAnswers] = React.useState<Record<string, string | string[]>>({});
   const [isLoading, setIsLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
+  const [validationHint, setValidationHint] = React.useState(false);
+  const { toast } = useToast();
 
   React.useEffect(() => {
     const fetchData = async () => {
@@ -52,7 +55,7 @@ const AssessmentPage = () => {
     try {
       const allAnswered = questions.every(q => answers[q.id] !== undefined);
       if (!allAnswered) {
-        alert('请回答所有题目');
+        toast('warning', '请回答所有题目');
         return;
       }
 
@@ -79,7 +82,7 @@ const AssessmentPage = () => {
       const data = await response.json();
       window.location.href = `/result/${data.id}`;
     } catch (err) {
-      alert('提交失败，请重试');
+      toast('error', '提交失败，请重试');
     }
   };
 
@@ -205,7 +208,11 @@ const AssessmentPage = () => {
         </div>
 
         {/* Question */}
-        <div className="bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 rounded-3xl p-8 mb-8 shadow-xl">
+        <div className={`bg-gradient-to-br from-white/5 to-white/[0.02] border rounded-3xl p-8 mb-8 shadow-xl transition-all duration-300 ${
+          validationHint 
+            ? 'border-red-500/40 bg-gradient-to-br from-red-500/10 to-red-500/[0.02] animate-shake' 
+            : 'border-white/10'
+        }`}>
           <h3 className="text-xl font-semibold mb-6 text-teal-400">第 {currentQuestion + 1} 题</h3>
           <p className="text-lg mb-8 text-white">{currentQ.content}</p>
           <div className="space-y-3">
@@ -263,7 +270,9 @@ const AssessmentPage = () => {
             <button
               onClick={() => {
                 if (answers[currentQ.id] === undefined) {
-                  alert('请先选择答案');
+                  toast('warning', '请先选择答案');
+                  setValidationHint(true);
+                  setTimeout(() => setValidationHint(false), 600);
                   return;
                 }
                 setCurrentQuestion(prev => Math.min(questions.length - 1, prev + 1));

@@ -56,6 +56,21 @@ const config: Config = {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      keyframes: {
+        "slide-down": {
+          "0%": { transform: "translateY(-16px)", opacity: "0" },
+          "100%": { transform: "translateY(0)", opacity: "1" },
+        },
+        "shake": {
+          "0%, 100%": { transform: "translateX(0)" },
+          "10%, 50%, 90%": { transform: "translateX(-4px)" },
+          "30%, 70%": { transform: "translateX(4px)" },
+        },
+      },
+      animation: {
+        "slide-down": "slide-down 0.35s cubic-bezier(0.16, 1, 0.3, 1)",
+        "shake": "shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97)",
+      },
     },
   },
   plugins: [],
