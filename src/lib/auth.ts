@@ -5,12 +5,12 @@ const JWT_SECRET: string = process.env.JWT_SECRET || (() => {
   throw new Error('JWT_SECRET 环境变量未设置，请在 .env 文件中配置');
 })();
 
-export function hashPassword(password: string): string {
-  return bcrypt.hashSync(password, 10);
+export async function hashPassword(password: string): Promise<string> {
+  return bcrypt.hash(password, 10);
 }
 
-export function comparePassword(password: string, hash: string): boolean {
-  return bcrypt.compareSync(password, hash);
+export async function comparePassword(password: string, hash: string): Promise<boolean> {
+  return bcrypt.compare(password, hash);
 }
 
 export function generateToken(userId: string, role: string): string {

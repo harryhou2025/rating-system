@@ -28,7 +28,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const hashedPassword = hashPassword(password);
+    const hashedPassword = await hashPassword(password);
     const userId = uuidv4();
 
     const result = await db.run(

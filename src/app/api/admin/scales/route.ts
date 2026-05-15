@@ -1,42 +1,9 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import getDB from '@/lib/db';
-import { verifyToken } from '@/lib/auth';
-
-// 管理员权限中间件
-function withAdminAuth(handler: Function) {
-  return async (request: Request) => {
-    try {
-      const authHeader = request.headers.get('authorization');
-      if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return NextResponse.json(
-          { error: '未登录' },
-          { status: 401 }
-        );
-      }
-
-      const token = authHeader.substring(7);
-      const decoded = verifyToken(token);
-      
-      if (!decoded || decoded.role !== 'admin') {
-        return NextResponse.json(
-          { error: '权限不足' },
-          { status: 403 }
-        );
-      }
-
-      return await handler(request);
-    } catch (error) {
-      console.error('Auth error:', error);
-      return NextResponse.json(
-        { error: '认证失败' },
-        { status: 401 }
-      );
-    }
-  };
-}
+import { withAdminAuth } from '@/lib/middleware';
 
 // 获取量表列表
-async function getScales(request: Request) {
+async function getScales(request: NextRequest) {
   try {
     const db = await getDB();
     
@@ -56,7 +23,7 @@ async function getScales(request: Request) {
 }
 
 // 启用/禁用量表
-async function toggleScaleStatus(request: Request) {
+async function toggleScaleStatus(request: NextRequest) {
   try {
     const { id, isActive } = await request.json();
     
@@ -88,7 +55,7 @@ async function toggleScaleStatus(request: Request) {
 }
 
 // 创建量表
-async function createScale(request: Request) {
+async function createScale(request: NextRequest) {
   try {
     const { title, description, category, targetAudience, estimatedTime, instructions, resultInterpretation, isActive } = await request.json();
     
@@ -119,7 +86,7 @@ async function createScale(request: Request) {
 }
 
 // 编辑量表
-async function updateScale(request: Request) {
+async function updateScale(request: NextRequest) {
   try {
     const { id, title, description, category, targetAudience, estimatedTime, instructions, resultInterpretation, isActive } = await request.json();
     
@@ -158,7 +125,7 @@ async function updateScale(request: Request) {
 }
 
 // 删除量表
-async function deleteScale(request: Request) {
+async function deleteScale(request: NextRequest) {
   try {
     const { id } = await request.json();
     

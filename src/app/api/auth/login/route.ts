@@ -27,7 +27,7 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!comparePassword(password, user.password)) {
+    if (!await comparePassword(password, user.password)) {
       return NextResponse.json(
         { error: '邮箱或密码错误' },
         { status: 401 }

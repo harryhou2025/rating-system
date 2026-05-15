@@ -163,7 +163,7 @@ export async function getDB(): Promise<Database> {
   if (!db) {
     // 打开数据库连接
     db = await open({
-      filename: './rating_sys.db',
+      filename: process.env.DB_PATH || './rating_sys.db',
       driver: sqlite3.Database,
     });
     
