@@ -1,6 +1,8 @@
 import crypto from 'crypto';
 
-const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || crypto.randomBytes(32).toString('hex');
+const ENCRYPTION_KEY: string = process.env.ENCRYPTION_KEY || (() => {
+  throw new Error('ENCRYPTION_KEY 环境变量未设置，请在 .env 文件中配置');
+})();
 const IV_LENGTH = 16;
 
 export function encrypt(text: string): string {

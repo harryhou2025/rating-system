@@ -12,6 +12,23 @@ export function withRateLimit(
 
   const requests = new Map<string, number[]>();
 
+  // 定期清理过期记录，防止内存泄漏
+  const cleanupInterval = setInterval(() => {
+    const now = Date.now();
+    for (const [ip, timestamps] of requests.entries()) {
+      const valid = timestamps.filter(time => now - time < windowMs);
+      if (valid.length === 0) {
+        requests.delete(ip);
+      } else {
+        requests.set(ip, valid);
+      }
+    }
+  }, Math.min(windowMs, 60000));
+
+  if (cleanupInterval.unref) {
+    cleanupInterval.unref();
+  }
+
   return async (req: Request) => {
     const ip = req.headers.get('x-forwarded-for') || 
                 req.headers.get('x-real-ip') || 

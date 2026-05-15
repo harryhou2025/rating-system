@@ -20,16 +20,12 @@ export async function POST(request: Request) {
       [email]
     );
 
-    console.log('Found user:', user);
-
     if (!user) {
       return NextResponse.json(
         { error: '邮箱或密码错误' },
         { status: 401 }
       );
     }
-
-    console.log('User ID:', user.id);
 
     if (!comparePassword(password, user.password)) {
       return NextResponse.json(
@@ -38,9 +34,7 @@ export async function POST(request: Request) {
       );
     }
 
-    console.log('Generating token with user ID:', user.id);
     const token = generateToken(user.id, user.role);
-    console.log('Generated token:', token);
 
     return NextResponse.json({
       user: {

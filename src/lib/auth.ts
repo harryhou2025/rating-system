@@ -1,7 +1,9 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+const JWT_SECRET: string = process.env.JWT_SECRET || (() => {
+  throw new Error('JWT_SECRET 环境变量未设置，请在 .env 文件中配置');
+})();
 
 export function hashPassword(password: string): string {
   return bcrypt.hashSync(password, 10);
