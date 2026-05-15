@@ -1264,6 +1264,21 @@ describe('calculateCONNERS3TEACHER', () => {
     expect(result.details!.hyperactivityT).toBeDefined();
     expect(result.details!.adhdTotalT).toBeDefined();
   });
+
+  it('当 inattentionT >= 65 且 hyperactivityT >= 65 时，应显示 ADHD高度可疑（验证死代码bug）', () => {
+    // inattention 因子有28题(q1-q28)，每题设2分 → 56分 → T ≈ 83.3 >= 65
+    // hyperactivity 因子有13题(q29-q41)，每题设2分 → 26分 → T ≈ 74.6 >= 65
+    const answers = buildAnswersWithMap(totalQuestions, (i) => {
+      if (i >= 1 && i <= 41) return 2;
+      return 0;
+    });
+    const result = calculateCONNERS3TEACHER(answers);
+    expect(result.details!.inattentionT).toBeGreaterThanOrEqual(65);
+    expect(result.details!.hyperactivityT).toBeGreaterThanOrEqual(65);
+    // 如果 severity 不是 'ADHD高度可疑'，说明死代码bug存在
+    // 期望正确结果应为 'ADHD高度可疑'
+    expect(result.severity).toBe('ADHD高度可疑');
+  });
 });
 
 describe('calculateSRS2', () => {

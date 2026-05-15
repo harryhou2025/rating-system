@@ -68,7 +68,7 @@ export function calculatePHQ9(answers: Record<string, number>): ScoringResult {
   }
   
   const symptomCount = values.filter(val => val >= 1).length;
-  const anhedoniaDepressed = (values[0] >= 1 || values[1] >= 1);
+  const anhedoniaDepressed = (answers['q1'] >= 1 || answers['q2'] >= 1);
   const probableMDD = symptomCount >= 5 && anhedoniaDepressed;
   
   return {
@@ -1709,16 +1709,13 @@ export function calculateCONNERS3TEACHER(answers: Record<string, number>): Scori
   // 评估严重程度
   let severity: string;
   let recommendation: string;
-  
-  if (inattentionT < 60 && hyperactivityT < 60) {
-    severity = '正常范围';
-    recommendation = '无需处理，定期观察';
+
+  if (inattentionT >= 65 && hyperactivityT >= 65) {
+    severity = 'ADHD高度可疑';
+    recommendation = '高度怀疑ADHD，建议诊断评估';
   } else if (inattentionT >= 60 || hyperactivityT >= 60) {
     severity = 'ADHD可疑';
     recommendation = '建议进一步评估';
-  } else if (inattentionT >= 65 && hyperactivityT >= 65) {
-    severity = 'ADHD高度可疑';
-    recommendation = '高度怀疑ADHD，建议诊断评估';
   } else {
     severity = '正常范围';
     recommendation = '无需处理，定期观察';
