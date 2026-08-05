@@ -1,13 +1,88 @@
 import { NextResponse } from 'next/server';
 import getDB from '@/lib/db';
 import { calculateScore } from '@/lib/scoring';
+import {
+  calculateCorrectedAgeDays,
+  matchAgeGroup,
+  formatAgeDisplay,
+  calculateCDMM,
+} from '@/lib/cdmm';
 import { v4 as uuidv4 } from 'uuid';
 
 export async function POST(request: Request) {
   try {
-    const { userId, scaleId, answers, ipAddress } = await request.json();
+    const { userId, scaleId, answers, ipAddress, childInfo } = await request.json();
     
     const db = await getDB();
+
+    // CDMM 专用流程：需儿童信息 + 题目上下文计分
+    if (scaleId === 'cdmm-scale') {
+      if (!childInfo?.name || !childInfo?.gender || !childInfo?.birthDate) {
+        return NextResponse.json({ error: '儿童信息不完整' }, { status: 400 });
+      }
+      if (childInfo.isPremature && !childInfo.dueDate) {
+        return NextResponse.json({ error: '早产儿童需填写预产期' }, { status: 400 });
+      }
+
+      const ageDays = calculateCorrectedAgeDays(
+        childInfo.birthDate,
+        childInfo.isPremature ? childInfo.dueDate : undefined
+      );
+      const group = matchAgeGroup(ageDays);
+      if (!group) {
+        return NextResponse.json(
+          { error: `矫正月龄超出可测评范围（须大于 1 个月且小于 102 个月），当前 ${formatAgeDisplay(ageDays)}，无法进入测评` },
+          { status: 400 }
+        );
+      }
+
+      const rows = await db.all(
+        `SELECT id, content, dimension, meta FROM questions WHERE scale_id = ? ORDER BY "order" ASC`,
+        [scaleId]
+      );
+      const questions = rows
+        .filter((q: any) => {
+          const meta = q.meta ? JSON.parse(q.meta) : null;
+          return meta && meta.ageGroup === group.label;
+        })
+        .map((q: any) => {
+          const meta = q.meta ? JSON.parse(q.meta) : null;
+          return { id: q.id, dimension: q.dimension, kind: meta.kind };
+        });
+      const contentMap: Record<string, string> = {};
+      for (const q of rows) contentMap[q.id] = q.content;
+
+      const today = new Date();
+      const ymd = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      const compact = (d: Date) => `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`;
+      const screeningDate = ymd(today);
+      const birthCompact = childInfo.birthDate.replace(/-/g, '');
+      const screeningNumber = `CDMM${birthCompact}${compact(today)}${Math.floor(10 + Math.random() * 90)}`;
+
+      const result = calculateCDMM(answers, questions, contentMap, {
+        childName: childInfo.name,
+        gender: childInfo.gender,
+        birthDate: childInfo.birthDate,
+        isPremature: !!childInfo.isPremature,
+        ageGroup: group.label,
+        correctedAgeDays: ageDays,
+        ageDisplay: formatAgeDisplay(ageDays),
+        screeningDate,
+        screeningNumber,
+        provider: 'XXXXXXXX',
+      });
+
+      const assessmentId = uuidv4();
+      await db.run(
+        `INSERT INTO assessments (id, user_id, scale_id, answers, result, ip_address, status, completed_at)
+         VALUES (?, ?, ?, ?, ?, ?, 'completed', CURRENT_TIMESTAMP)`,
+        [assessmentId, userId || null, scaleId, JSON.stringify(answers), JSON.stringify(result), ipAddress]
+      );
+      const assessment = await db.get('SELECT * FROM assessments WHERE id = ?', [assessmentId]);
+      if (assessment.answers) assessment.answers = JSON.parse(assessment.answers);
+      if (assessment.result) assessment.result = JSON.parse(assessment.result);
+      return NextResponse.json(assessment);
+    }
     
     // 计算得分
     const result = calculateScore(scaleId, answers);
