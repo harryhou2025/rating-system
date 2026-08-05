@@ -48,6 +48,7 @@ export async function GET(
         order: q.order,
         scoringType: q.scoring_type,
         dimension: q.dimension,
+        meta: q.meta ? JSON.parse(q.meta) : undefined,
       }))
     };
 

@@ -64,7 +64,8 @@ async function initializeDatabase(database: Database) {
         options TEXT,                       -- 选项（JSON格式）
         "order" INTEGER NOT NULL,           -- 排序号
         scoring_type TEXT,                  -- 计分类型
-        dimension TEXT                      -- 维度
+        dimension TEXT,                     -- 维度
+        meta TEXT                           -- 附加元数据（JSON，如月龄组与题型）
       )
     `);
 
@@ -87,6 +88,13 @@ async function initializeDatabase(database: Database) {
     await database.exec(`CREATE INDEX IF NOT EXISTS idx_assessments_user_id ON assessments(user_id)`);
     await database.exec(`CREATE INDEX IF NOT EXISTS idx_assessments_scale_id ON assessments(scale_id)`);
     await database.exec(`CREATE INDEX IF NOT EXISTS idx_assessments_status ON assessments(status)`);
+
+    // 兼容旧库：questions 表补充 meta 列（幂等）
+    const questionCols = await database.all('PRAGMA table_info(questions)');
+    if (!questionCols.some((col: any) => col.name === 'meta')) {
+      await database.exec('ALTER TABLE questions ADD COLUMN meta TEXT');
+      console.log('已为 questions 表补充 meta 列');
+    }
 
     // 检查是否已有量表数据
     const existingScales = await database.all('SELECT COUNT(*) as count FROM scales');

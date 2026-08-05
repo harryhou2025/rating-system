@@ -33,6 +33,19 @@ export interface Question {
   order: number;
 }
 
+export interface QuestionMeta {
+  ageGroup: string;                 // 月龄组：'2月龄' | '4月龄' | ... | '8岁'
+  kind: 'milestone' | 'redflag';    // 里程碑题 / 警示标志题
+}
+
+export interface CdmmChildInfo {
+  name: string;
+  gender: '男' | '女';
+  birthDate: string;                // YYYY-MM-DD
+  isPremature: boolean;
+  dueDate?: string;                 // 早产时必填，YYYY-MM-DD（预产期）
+}
+
 export interface Assessment {
   id: string;
   userId?: string;
