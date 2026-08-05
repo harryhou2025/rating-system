@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, FileText, Calendar, User, Scale } from 'lucide-react';
 import Image from 'next/image';
+import CDMMResult from '@/components/cdmm/CDMMResult';
 
 const ResultPage: React.FC = () => {
   const params = useParams();
@@ -146,6 +147,10 @@ const ResultPage: React.FC = () => {
   }
 
   const result = assessment.result || {};
+
+  if (scale.id === 'cdmm-scale') {
+    return <CDMMResult assessment={assessment} scale={scale} />;
+  }
 
   return (
     <div className="min-h-screen bg-[#0f172a] text-[#f8fafc] font-sans">
