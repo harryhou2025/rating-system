@@ -1089,7 +1089,9 @@ const AdminPage = () => {
                               const matchCategory = !searchCategory || scale.category.toLowerCase().includes(searchCategory.toLowerCase());
                               return matchTitle && matchCategory;
                             })
-                            .map((scale) => (
+                            .map((scale) => {
+                              const isCdmm = scale.id === 'cdmm-scale';
+                              return (
                           <tr key={scale.id} className="border-b border-slate-200 hover:bg-slate-50">
                             <td className="px-4 py-3 text-sm text-slate-600">{scale.id}</td>
                             <td className="px-4 py-3 text-sm text-slate-600">{scale.title}</td>
@@ -1106,6 +1108,7 @@ const AdminPage = () => {
                             </td>
                             <td className="px-4 py-3 text-sm text-slate-600">
                               <div className="flex gap-2">
+                                {!isCdmm && (
                                 <Button
                                   onClick={() => {
                                     setEditFormData({
@@ -1126,6 +1129,7 @@ const AdminPage = () => {
                                 >
                                   编辑
                                 </Button>
+                                )}
                                 <Button
                                   onClick={() => handleOpenQuestionsModal(scale.id)}
                                   variant="ghost"
@@ -1172,6 +1176,7 @@ const AdminPage = () => {
                                 >
                                   {scale.is_active ? '禁用' : '启用'}
                                 </Button>
+                                {!isCdmm && (
                                 <Button
                                   onClick={async () => {
                                     if (confirm('确定要删除该量表吗？\n注意：已被使用的量表无法删除。')) {
@@ -1205,10 +1210,12 @@ const AdminPage = () => {
                                 >
                                   删除
                                 </Button>
+                                )}
                               </div>
                             </td>
                           </tr>
-                        ))}
+                              );
+                            })}
                       </tbody>
                     </table>
                   </div>
@@ -1506,7 +1513,12 @@ const AdminPage = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b border-slate-200 flex justify-between items-center">
-              <h3 className="text-xl font-bold text-slate-800">题目管理</h3>
+              <div className="flex flex-col gap-1">
+                <h3 className="text-xl font-bold text-slate-800">题目管理</h3>
+                {currentScaleId === 'cdmm-scale' && (
+                  <span className="text-xs text-amber-600">CDMM 数据由导入脚本维护，后台只读</span>
+                )}
+              </div>
               <Button
                 onClick={() => {
                   setShowQuestionsModal(false);
@@ -1524,6 +1536,7 @@ const AdminPage = () => {
             <div className="p-6">
               <div className="flex justify-between items-center mb-4">
                 <h4 className="text-lg font-semibold text-slate-700">题目列表</h4>
+                {currentScaleId !== 'cdmm-scale' && (
                 <Button
                   onClick={() => {
                     setAddQuestionFormData({
@@ -1539,6 +1552,7 @@ const AdminPage = () => {
                 >
                   添加题目
                 </Button>
+                )}
               </div>
               {questionsLoading ? (
                 <div className="flex justify-center items-center py-12">
@@ -1569,6 +1583,7 @@ const AdminPage = () => {
                           </span>
                           <h5 className="font-semibold text-slate-800">{question.content}</h5>
                         </div>
+                        {currentScaleId !== 'cdmm-scale' && (
                         <div className="flex gap-2">
                           <Button
                             onClick={() => {
@@ -1595,6 +1610,7 @@ const AdminPage = () => {
                             删除
                           </Button>
                         </div>
+                        )}
                       </div>
                       <div className="ml-8">
                         <div className="text-sm text-slate-600 mb-2">
