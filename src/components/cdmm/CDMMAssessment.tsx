@@ -69,6 +69,7 @@ const CDMMAssessment: React.FC<Props> = ({ scale, questions }) => {
   };
 
   const handleSubmit = async () => {
+    if (submitting) return;
     try {
       const unanswered = groupQuestions.filter((q) => answers[q.id] === undefined);
       if (unanswered.length > 0) {
@@ -209,7 +210,7 @@ const CDMMAssessment: React.FC<Props> = ({ scale, questions }) => {
                     {q.options.map((opt) => (
                       <button
                         key={opt.value}
-                        onClick={() => setAnswers({ ...answers, [q.id]: opt.value })}
+                        onClick={() => setAnswers((prev) => ({ ...prev, [q.id]: opt.value }))}
                         className={`py-3 rounded-xl border text-sm transition-colors ${
                           answers[q.id] === opt.value
                             ? 'bg-teal-500/20 border-teal-400 text-teal-300'
@@ -234,7 +235,14 @@ const CDMMAssessment: React.FC<Props> = ({ scale, questions }) => {
               </button>
               {currentGroup < groupNames.length - 1 ? (
                 <button
-                  onClick={() => setCurrentGroup((i) => Math.min(groupNames.length - 1, i + 1))}
+                  onClick={() => {
+                    const unanswered = curQuestions.filter((q) => answers[q.id] === undefined);
+                    if (unanswered.length > 0) {
+                      toast('warning', '请先完成本能区所有题目');
+                      return;
+                    }
+                    setCurrentGroup((i) => Math.min(groupNames.length - 1, i + 1));
+                  }}
                   className="px-5 py-3 rounded-xl bg-gradient-to-r from-teal-500 to-blue-500 text-white font-semibold"
                 >
                   下一能区
