@@ -11,15 +11,16 @@ interface Props {
   scale: any;
 }
 
-const COLOR_META: Record<string, { label: string; fill: string; stroke: string }> = {
+const COLOR_META: Record<'blue' | 'green' | 'yellow' | 'gray', { label: string; fill: string; stroke: string }> = {
   blue: { label: '全部很熟练', fill: '#60a5fa', stroke: '#3b82f6' },
   green: { label: '存在不熟练', fill: '#34d399', stroke: '#10b981' },
   yellow: { label: '存在未做到', fill: '#fbbf24', stroke: '#f59e0b' },
+  gray: { label: '未评估', fill: '#94a3b8', stroke: '#64748b' },
 };
 
 /** 脚丫 SVG：简单脚印形状，颜色随状态 */
-const Footprint: React.FC<{ color: 'blue' | 'green' | 'yellow' }> = ({ color }) => {
-  const c = COLOR_META[color];
+const Footprint: React.FC<{ color: 'blue' | 'green' | 'yellow' | 'gray' }> = ({ color }) => {
+  const c = COLOR_META[color] ?? COLOR_META.blue;
   return (
     <svg viewBox="0 0 48 48" className="w-12 h-12">
       <ellipse cx="18" cy="14" rx="6" ry="8" fill={c.fill} stroke={c.stroke} strokeWidth="1.5" />
@@ -101,8 +102,13 @@ const CDMMResult: React.FC<Props> = ({ assessment, scale }) => {
               const r = dimResults[dim];
               return (
                 <div key={dim} className="flex flex-col items-center gap-2 p-3 rounded-2xl bg-white/5 border border-white/10">
-                  {r ? <Footprint color={r.color} /> : <Footprint color="blue" />}
+                  {r ? (
+                    <Footprint color={r.color} />
+                  ) : (
+                    <Footprint color="gray" />
+                  )}
                   <span className="text-xs text-white/70 text-center leading-tight">{dim}</span>
+                  {!r && <span className="text-[10px] text-white/40">未评估</span>}
                 </div>
               );
             })}
@@ -114,7 +120,7 @@ const CDMMResult: React.FC<Props> = ({ assessment, scale }) => {
           <h2 className="text-lg font-bold mb-4">发展目标里程碑</h2>
           <p className="text-sm text-white/50 mb-4">孩子目前阶段需要努力实现的里程碑包括：</p>
           {Object.entries(milestones).map(([dim, items]) => {
-            const list = (items as string[]) ?? [];
+            const list = Array.isArray(items) ? items : [];
             if (list.length === 0) return null;
             return (
               <div key={dim} className="mb-5">
@@ -129,8 +135,12 @@ const CDMMResult: React.FC<Props> = ({ assessment, scale }) => {
               </div>
             );
           })}
-          {Object.values(milestones).every((v) => (v as string[]).length === 0) && (
-            <p className="text-sm text-white/60">全部里程碑均达标，继续保持！</p>
+          {Object.keys(milestones).length > 0 ? (
+            Object.values(milestones).every((v) => (v as string[]).length === 0) && (
+              <p className="text-sm text-white/60">全部里程碑均达标，继续保持！</p>
+            )
+          ) : (
+            <p className="text-sm text-white/60">本次核验暂无可展示的目标里程碑。</p>
           )}
         </section>
 
@@ -145,7 +155,7 @@ const CDMMResult: React.FC<Props> = ({ assessment, scale }) => {
             <>
               <p className="text-sm text-red-400 mb-3">孩子在本月龄出现了需要爸爸妈妈密切关注的里程碑小红灯：</p>
               <ul className="space-y-2">
-                {(redFlag.items as string[]).map((item, i) => (
+                {((redFlag.items as string[]) ?? []).map((item, i) => (
                   <li key={i} className="text-sm text-white/90 bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3">
                     {item}
                   </li>
