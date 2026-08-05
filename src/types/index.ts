@@ -31,10 +31,14 @@ export interface Question {
   type: 'choice' | 'rating' | 'text';
   options?: string[];
   order: number;
+  meta?: QuestionMeta;
 }
 
 export interface QuestionMeta {
-  ageGroup: string;                 // 月龄组：'2月龄' | '4月龄' | ... | '8岁'
+  ageGroup:
+    | '2月龄' | '4月龄' | '6月龄' | '8月龄' | '10月龄' | '12月龄'
+    | '14月龄' | '16月龄' | '18月龄' | '20月龄' | '22月龄' | '24月龄'
+    | '3岁' | '4岁' | '5岁' | '6岁' | '7岁' | '8岁';
   kind: 'milestone' | 'redflag';    // 里程碑题 / 警示标志题
 }
 
