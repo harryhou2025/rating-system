@@ -52,7 +52,7 @@ export function calculateCorrectedAgeDays(
   dueDate?: string,
   now: Date = new Date()
 ): number {
-  const anchor = dueDate ? new Date(dueDate) : new Date(birthDate);
+  const anchor = dueDate ? new Date(dueDate + 'T00:00:00') : new Date(birthDate + 'T00:00:00');
   return Math.floor((now.getTime() - anchor.getTime()) / DAY_MS);
 }
 
@@ -112,13 +112,20 @@ export function calculateCDMM(
   for (const dim of CDMM_DIMENSIONS) milestoneByDim[dim] = { values: [], contents: [] };
 
   const redFlagItems: string[] = [];
+  let validAnswerCount = 0;
 
   for (const q of questions) {
     const value = answers[q.id];
     if (value === undefined || value === null) continue;
     if (q.kind === 'redflag') {
+      // 警示题：仅 0/1 合法，其余值跳过
+      if (value !== 0 && value !== 1) continue;
+      validAnswerCount++;
       if (value === 1) redFlagItems.push(contentMap[q.id] ?? q.id);
     } else {
+      // 里程碑题：仅 0/1/2 合法，其余值跳过（避免非法值被静默计为 blue）
+      if (value !== 0 && value !== 1 && value !== 2) continue;
+      validAnswerCount++;
       const bucket = milestoneByDim[q.dimension];
       if (!bucket) continue;
       bucket.values.push(value);
@@ -144,13 +151,28 @@ export function calculateCDMM(
   const hasYellow = Object.values(dimensionResults).some((d) => d.color === 'yellow');
   const hasGreen = Object.values(dimensionResults).some((d) => d.color === 'green');
 
-  let recommendation = `本次核验 ${context.ageGroup} 发育里程碑，8 大能区中 ${blueCount} 个能区全部达标。`;
-  if (hasYellow) recommendation = `本次核验发现部分能区存在"未做到"的里程碑，建议咨询儿保医生并加强针对性练习。`;
-  else if (hasGreen) recommendation = `本次核验整体良好，个别里程碑尚不熟练，建议持续练习并定期复测。`;
+  let severity: string;
+  let recommendation: string;
+  if (validAnswerCount === 0) {
+    severity = '未完成评估';
+    recommendation = '本次核验无有效作答，请重新完成测评。';
+  } else if (redFlag.triggered) {
+    severity = '存在警示信号';
+    recommendation = '本次核验发现警示标志（红灯），建议尽快咨询儿保医生或专业发育评估机构。';
+  } else if (hasYellow) {
+    severity = '需关注';
+    recommendation = `本次核验发现部分能区存在"未做到"的里程碑，建议咨询儿保医生并加强针对性练习。`;
+  } else if (hasGreen) {
+    severity = '良好';
+    recommendation = `本次核验整体良好，个别里程碑尚不熟练，建议持续练习并定期复测。`;
+  } else {
+    severity = '优秀';
+    recommendation = `本次核验 ${context.ageGroup} 发育里程碑，8 大能区中 ${blueCount} 个能区全部达标。`;
+  }
 
   return {
-    totalScore: blueCount,
-    severity: redFlag.triggered ? '存在警示信号' : hasYellow ? '需关注' : hasGreen ? '良好' : '优秀',
+    totalScore: blueCount, // 蓝色（全部达标）能区数，非原始分
+    severity,
     recommendation,
     details: {
       ...context,

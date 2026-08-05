@@ -47,15 +47,15 @@ describe('matchAgeGroup 边界（最高优先级）', () => {
 
 describe('calculateCorrectedAgeDays 矫正月龄（预产期法）', () => {
   it('足月按实际出生日期', () => {
-    const days = calculateCorrectedAgeDays('2023-01-01', undefined, new Date('2024-01-01'));
+    const days = calculateCorrectedAgeDays('2023-01-01', undefined, new Date('2024-01-01T00:00:00'));
     expect(days).toBe(365);
   });
   it('早产按预产期（提前 30 天 → 矫正年龄少 30 天）', () => {
-    const days = calculateCorrectedAgeDays('2023-01-01', '2023-01-31', new Date('2024-01-01'));
+    const days = calculateCorrectedAgeDays('2023-01-01', '2023-01-31', new Date('2024-01-01T00:00:00'));
     expect(days).toBe(335);
   });
   it('未到预产期返回负天数（属超界报错场景）', () => {
-    const days = calculateCorrectedAgeDays('2023-06-01', '2023-09-01', new Date('2023-08-01'));
+    const days = calculateCorrectedAgeDays('2023-06-01', '2023-09-01', new Date('2023-08-01T00:00:00'));
     expect(days).toBeLessThan(0);
   });
 });
@@ -130,5 +130,36 @@ describe('calculateCDMM 计分规则', () => {
     expect(d.screeningNumber).toBe('CDMM202301012024010112');
     expect(d.dimensionResults).toHaveProperty('粗大动作');
     expect(d.redFlag.triggered).toBe(true);
+  });
+
+  it('空 answers → 未完成评估，dimensionResults 为空对象', () => {
+    const r = calculateCDMM({}, questions, contentMap, base);
+    expect(r.severity).toBe('未完成评估');
+    expect(r.recommendation).toBe('本次核验无有效作答，请重新完成测评。');
+    expect(r.details!.dimensionResults).toEqual({});
+  });
+
+  it('非法值(如 3)被跳过，不影响合法值计分', () => {
+    const r = calculateCDMM({ q1: 3, q2: 2, q3: 2, q4: 2, q5: 0, q6: 0 }, questions, contentMap, base);
+    expect(r.details!.dimensionResults['粗大动作'].color).toBe('blue');
+    expect(r.details!.dimensionResults['粗大动作'].notDone).toHaveLength(0);
+    expect(r.details!.dimensionResults['粗大动作'].notSkilled).toHaveLength(0);
+  });
+
+  it('未知 question id 不报错、不计入任何能区', () => {
+    const r = calculateCDMM({ qX: 1, q1: 2, q2: 2, q3: 2, q4: 2, q5: 0, q6: 0 }, questions, contentMap, base);
+    expect(r.details!.dimensionResults['粗大动作'].color).toBe('blue');
+    expect(r.severity).toBe('优秀');
+  });
+
+  it('红灯与黄色并存 → severity=存在警示信号，recommendation 提及红灯', () => {
+    const r = calculateCDMM({ q1: 0, q2: 2, q3: 2, q4: 2, q5: 1, q6: 0 }, questions, contentMap, base);
+    expect(r.severity).toBe('存在警示信号');
+    expect(r.recommendation).toContain('红灯');
+  });
+
+  it('milestoneItems 汇总未做到+不熟练', () => {
+    const r = calculateCDMM({ q1: 0, q2: 1, q3: 2, q4: 2, q5: 0, q6: 0 }, questions, contentMap, base);
+    expect(r.details!.milestoneItems['粗大动作']).toEqual(['能抬头', '能翻身']);
   });
 });
