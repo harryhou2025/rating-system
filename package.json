@@ -11,6 +11,7 @@
     "test:watch": "jest --watch",
     "init-db": "npx tsx src/lib/init-db.ts",
     "seed": "npx tsx scripts/seed.ts",
+    "import:cdmm": "npx tsx scripts/import-cdmm.ts",
     "install:vercel": "npm install --legacy-peer-deps"
   },
   "dependencies": {
@@ -27,7 +28,8 @@
     "sqlite": "^5.1.1",
     "sqlite3": "^5.1.7",
     "tailwind-merge": "^2.2.1",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",

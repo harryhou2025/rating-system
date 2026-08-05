@@ -89,11 +89,15 @@ async function initializeDatabase(database: Database) {
     await database.exec(`CREATE INDEX IF NOT EXISTS idx_assessments_scale_id ON assessments(scale_id)`);
     await database.exec(`CREATE INDEX IF NOT EXISTS idx_assessments_status ON assessments(status)`);
 
-    // 兼容旧库：questions 表补充 meta 列（幂等）
+    // 兼容旧库：questions 表补充 dimension / meta 列（幂等）
     const questionCols = await database.all('PRAGMA table_info(questions)');
     if (!questionCols.some((col: any) => col.name === 'meta')) {
       await database.exec('ALTER TABLE questions ADD COLUMN meta TEXT');
       console.log('已为 questions 表补充 meta 列');
+    }
+    if (!questionCols.some((col: any) => col.name === 'dimension')) {
+      await database.exec('ALTER TABLE questions ADD COLUMN dimension TEXT');
+      console.log('已为 questions 表补充 dimension 列');
     }
 
     // 检查是否已有量表数据
