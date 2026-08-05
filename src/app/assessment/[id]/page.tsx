@@ -6,13 +6,14 @@ import Link from 'next/link';
 import { ArrowLeft, ArrowRight, Clock, Users, BookOpen } from 'lucide-react';
 import Image from 'next/image';
 import { useToast } from '@/components/ui/toast';
+import CDMMAssessment from '@/components/cdmm/CDMMAssessment';
 
 const AssessmentPage = () => {
   const params = useParams();
   const id = params.id as string;
   
   const [scale, setScale] = React.useState<{ id: string; title: string; description: string; category: string; targetAudience: string; estimatedTime: number; instructions: string; resultInterpretation: string; isActive: boolean; questions: any[] } | null>(null);
-  const [questions, setQuestions] = React.useState<Array<{ id: string; scaleId: string; content: string; type: string; options: any; order: number; scoringType: string; dimension: string }>>([]);
+  const [questions, setQuestions] = React.useState<Array<{ id: string; scaleId: string; content: string; type: string; options: any; order: number; scoringType: string; dimension: string; meta: any }>>([]);
   const [currentQuestion, setCurrentQuestion] = React.useState(0);
   const [answers, setAnswers] = React.useState<Record<string, string | string[]>>({});
   const [isLoading, setIsLoading] = React.useState(true);
@@ -128,6 +129,10 @@ const AssessmentPage = () => {
         </div>
       </div>
     );
+  }
+
+  if (scale.id === 'cdmm-scale') {
+    return <CDMMAssessment scale={scale} questions={questions} />;
   }
 
   const currentQ = questions[currentQuestion];
