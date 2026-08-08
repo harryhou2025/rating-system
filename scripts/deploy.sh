@@ -40,7 +40,7 @@ git push origin main
 
 # 4) 打包 .next（排除 cache 与 mac AppleDouble 垃圾，减小体积；node_modules/db/env 一律不进包）
 echo "==> [3/6] 打包 .next ..."
-tar czf "$TAR" --exclude='.next/cache' --exclude='._*' .next
+tar czf "$TAR" --exclude='.next/cache' --exclude='._*' .next public/footprints
 
 # 5) 生成服务器端执行脚本（独立文件，避免 expect 嵌套转义问题）
 cat > "$REMOTE_SCRIPT" <<'SCRIPT'
