@@ -23,20 +23,28 @@ const DIMENSION_LABELS: Record<string, string> = {
   '游戏和学习': 'Play and Learning',
 };
 
-/** 脚印状态颜色（对齐样板图例：很熟练=蓝 / 不熟练=绿 / 未做到=浅 / 未评估=灰，深色背景下提亮） */
+/** 脚印图片（对齐样板 docx 内嵌图：未做到=金色 / 不熟练=绿色 / 很熟练=蓝色） */
+const FOOT_IMAGES: Record<string, string> = {
+  yellow: '/footprints/footprint-gold.png',
+  green: '/footprints/footprint-green.png',
+  blue: '/footprints/footprint-blue.png',
+};
+
+/** 未评估脚印颜色（样板无此状态，沿用灰色 SVG 脚印） */
 const FOOT_COLORS: Record<string, { fill: string; stroke: string }> = {
-  blue: { fill: '#3b82f6', stroke: '#1d4ed8' },
-  green: { fill: '#65a30d', stroke: '#3f6212' },
-  yellow: { fill: '#e2e8f0', stroke: '#cbd5e1' },
   gray: { fill: '#94a3b8', stroke: '#64748b' },
 };
 
 /** 小红灯表格红色边框（样板 #C00000） */
 const RED_FLAG_BORDER = '#C00000';
 
-/** 脚丫 SVG：简单脚印形状，颜色随状态 */
+/** 脚印：优先使用样板真实脚印图片；未评估（gray）回退为灰色 SVG 脚印 */
 const Footprint: React.FC<{ color: string }> = ({ color }) => {
-  const c = FOOT_COLORS[color] ?? FOOT_COLORS.blue;
+  const src = FOOT_IMAGES[color];
+  if (src) {
+    return <Image src={src} alt="里程碑脚印" width={28} height={28} className="inline-block align-middle" />;
+  }
+  const c = FOOT_COLORS[color] ?? FOOT_COLORS.gray;
   return (
     <svg viewBox="0 0 48 48" className="w-7 h-7 inline-block align-middle">
       <ellipse cx="18" cy="14" rx="5.5" ry="7.5" fill={c.fill} stroke={c.stroke} strokeWidth="1.2" />
