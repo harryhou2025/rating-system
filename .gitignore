@@ -43,3 +43,4 @@ rating_sys.db
 .superpowers
 docs/superpowers
 read-pdf*.py
+.deploy_tmp
