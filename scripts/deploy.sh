@@ -53,7 +53,7 @@ TAR_FILE="$1"
 cd "$DEPLOY_DIR"
 
 echo "==> [4/6] git pull origin main"
-git pull origin main
+git pull origin main || echo "!! 警告：git pull 失败（服务器访问 GitHub 超时等），不影响 .next 部署，源码仓库可能落后"
 
 echo "==> 备份数据库"
 cp rating_sys.db "rating_sys.db.bak-$(date +%Y%m%d-%H%M%S)"
