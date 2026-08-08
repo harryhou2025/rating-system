@@ -7,6 +7,7 @@ import { ArrowLeft, ArrowRight, Clock, Users, BookOpen } from 'lucide-react';
 import Image from 'next/image';
 import { useToast } from '@/components/ui/toast';
 import CDMMAssessment from '@/components/cdmm/CDMMAssessment';
+import ShenduoAssessment from '@/components/shenduo/ShenduoAssessment';
 
 const AssessmentPage = () => {
   const params = useParams();
@@ -133,6 +134,10 @@ const AssessmentPage = () => {
 
   if (scale.id === 'cdmm-scale') {
     return <CDMMAssessment scale={scale} questions={questions} />;
+  }
+
+  if (scale.id === 'shenduo-scale') {
+    return <ShenduoAssessment scale={scale} questions={questions} />;
   }
 
   const currentQ = questions[currentQuestion];

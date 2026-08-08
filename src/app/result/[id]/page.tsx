@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { ArrowLeft, FileText, Calendar, User, Scale } from 'lucide-react';
 import Image from 'next/image';
 import CDMMResult from '@/components/cdmm/CDMMResult';
+import ShenduoResult from '@/components/shenduo/ShenduoResult';
 
 const ResultPage: React.FC = () => {
   const params = useParams();
@@ -150,6 +151,10 @@ const ResultPage: React.FC = () => {
 
   if (scale.id === 'cdmm-scale') {
     return <CDMMResult assessment={assessment} scale={scale} />;
+  }
+
+  if (scale.id === 'shenduo-scale') {
+    return <ShenduoResult assessment={assessment} scale={scale} />;
   }
 
   return (

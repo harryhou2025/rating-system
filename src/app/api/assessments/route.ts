@@ -7,6 +7,7 @@ import {
   formatAgeDisplay,
   calculateCDMM,
 } from '@/lib/cdmm';
+import { calculateShenduo } from '@/lib/shenduo';
 import { v4 as uuidv4 } from 'uuid';
 
 export async function POST(request: Request) {
@@ -71,6 +72,36 @@ export async function POST(request: Request) {
         screeningNumber,
         provider: 'XXXXXXXX',
       });
+
+      const assessmentId = uuidv4();
+      await db.run(
+        `INSERT INTO assessments (id, user_id, scale_id, answers, result, ip_address, status, completed_at)
+         VALUES (?, ?, ?, ?, ?, ?, 'completed', CURRENT_TIMESTAMP)`,
+        [assessmentId, userId || null, scaleId, JSON.stringify(answers), JSON.stringify(result), ipAddress]
+      );
+      const assessment = await db.get('SELECT * FROM assessments WHERE id = ?', [assessmentId]);
+      if (assessment.answers) assessment.answers = JSON.parse(assessment.answers);
+      if (assessment.result) assessment.result = JSON.parse(assessment.result);
+      return NextResponse.json(assessment);
+    }
+
+    // 神经多样性特质自筛量表：按 dimension（汪星人/喵星人/敏感星人）分组计分
+    if (scaleId === 'shenduo-scale') {
+      const rows = await db.all(
+        `SELECT id, dimension FROM questions WHERE scale_id = ? ORDER BY "order" ASC`,
+        [scaleId]
+      );
+      const orderByQid = new Map<string, number>();
+      rows.forEach((r: any, i: number) => orderByQid.set(r.id, i + 1));
+
+      const normalized: Record<string, number> = {};
+      for (const [key, value] of Object.entries(answers ?? {})) {
+        const v = value as number;
+        if (orderByQid.has(key)) normalized[`q${orderByQid.get(key)}`] = v;
+        else if (/^q\d+$/.test(key)) normalized[key] = v;
+      }
+      const questions = rows.map((_, i) => ({ id: `q${i + 1}`, dimension: rows[i].dimension }));
+      const result = calculateShenduo(normalized, questions);
 
       const assessmentId = uuidv4();
       await db.run(

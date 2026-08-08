@@ -10,6 +10,10 @@ import { Users, LogOut, Scale, FileText, Activity, Shield, Home, Download, List,
 import Image from 'next/image';
 import { useToast } from '@/components/ui/toast';
 
+// 由导入脚本维护、后台只读的量表
+const READONLY_SCALE_IDS = ['cdmm-scale', 'shenduo-scale'];
+const isReadonlyScaleId = (id: string) => READONLY_SCALE_IDS.includes(id);
+
 const AdminPage = () => {
   const [user, setUser] = React.useState<any>(null);
   const [isAuthorized, setIsAuthorized] = React.useState(false);
@@ -1090,7 +1094,7 @@ const AdminPage = () => {
                               return matchTitle && matchCategory;
                             })
                             .map((scale) => {
-                              const isCdmm = scale.id === 'cdmm-scale';
+                              const isReadonlyScale = isReadonlyScaleId(scale.id);
                               return (
                           <tr key={scale.id} className="border-b border-slate-200 hover:bg-slate-50">
                             <td className="px-4 py-3 text-sm text-slate-600">{scale.id}</td>
@@ -1108,7 +1112,7 @@ const AdminPage = () => {
                             </td>
                             <td className="px-4 py-3 text-sm text-slate-600">
                               <div className="flex gap-2">
-                                {!isCdmm && (
+                                {!isReadonlyScale && (
                                 <Button
                                   onClick={() => {
                                     setEditFormData({
@@ -1176,7 +1180,7 @@ const AdminPage = () => {
                                 >
                                   {scale.is_active ? '禁用' : '启用'}
                                 </Button>
-                                {!isCdmm && (
+                                {!isReadonlyScale && (
                                 <Button
                                   onClick={async () => {
                                     if (confirm('确定要删除该量表吗？\n注意：已被使用的量表无法删除。')) {
@@ -1515,8 +1519,8 @@ const AdminPage = () => {
             <div className="p-6 border-b border-slate-200 flex justify-between items-center">
               <div className="flex flex-col gap-1">
                 <h3 className="text-xl font-bold text-slate-800">题目管理</h3>
-                {currentScaleId === 'cdmm-scale' && (
-                  <span className="text-xs text-amber-600">CDMM 数据由导入脚本维护，后台只读</span>
+                {isReadonlyScaleId(currentScaleId) && (
+                  <span className="text-xs text-amber-600">该量表数据由导入脚本维护，后台只读</span>
                 )}
               </div>
               <Button
@@ -1536,7 +1540,7 @@ const AdminPage = () => {
             <div className="p-6">
               <div className="flex justify-between items-center mb-4">
                 <h4 className="text-lg font-semibold text-slate-700">题目列表</h4>
-                {currentScaleId !== 'cdmm-scale' && (
+                {!isReadonlyScaleId(currentScaleId) && (
                 <Button
                   onClick={() => {
                     setAddQuestionFormData({
@@ -1583,7 +1587,7 @@ const AdminPage = () => {
                           </span>
                           <h5 className="font-semibold text-slate-800">{question.content}</h5>
                         </div>
-                        {currentScaleId !== 'cdmm-scale' && (
+                        {!isReadonlyScaleId(currentScaleId) && (
                         <div className="flex gap-2">
                           <Button
                             onClick={() => {

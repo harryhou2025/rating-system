@@ -12,6 +12,7 @@
     "init-db": "npx tsx src/lib/init-db.ts",
     "seed": "npx tsx scripts/seed.ts",
     "import:cdmm": "npx tsx scripts/import-cdmm.ts",
+    "import:shenduo": "npx tsx scripts/import-shenduo.ts",
     "install:vercel": "npm install --legacy-peer-deps"
   },
   "dependencies": {
