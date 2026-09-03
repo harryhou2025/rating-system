@@ -44,3 +44,7 @@ rating_sys.db
 docs/superpowers
 read-pdf*.py
 .deploy_tmp
+
+# AI tooling local state & deploy leftovers
+.claude/
+update*.tar.gz

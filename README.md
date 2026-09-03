@@ -32,10 +32,10 @@
 
 ## 技术栈
 
-- **前端框架**: Next.js 15 + React 19 + TypeScript
+- **前端框架**: Next.js 14 (App Router) + React 18 + TypeScript
 - **UI组件**: Tailwind CSS + 自定义组件
 - **后端**: Next.js API Routes
-- **数据库**: PostgreSQL
+- **数据库**: SQLite（`sqlite3`，无需外部数据库服务）
 - **认证**: JWT + bcryptjs
 - **图标**: Lucide React
 
@@ -43,48 +43,38 @@
 
 ### 1. 安装依赖
 
-\`\`\`bash
+```bash
 npm install
-\`\`\`
+```
 
-### 2. 配置数据库
+### 2. 配置环境变量
 
-确保已安装PostgreSQL，然后创建数据库：
-
-\`\`\`sql
-CREATE DATABASE rating_sys;
-\`\`\`
-
-复制环境变量配置文件：
-
-\`\`\`bash
+```bash
 cp .env.example .env
-\`\`\`
+```
 
-编辑 `.env` 文件，配置数据库连接信息：
+编辑 `.env`，至少设置 JWT_SECRET（生成随机串：`openssl rand -hex 32`）：
 
-\`\`\`env
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=rating_sys
-DB_USER=postgres
-DB_PASSWORD=your_password_here
-JWT_SECRET=your-secret-key-change-in-production
-\`\`\`
+```env
+JWT_SECRET=your-random-secret
+# DB_PATH=./rating_sys.db   # 可选，默认值即此
+```
 
 ### 3. 初始化数据库
 
-\`\`\`bash
+首次启动会自动建表并写入 27 个种子量表，无需手动初始化。需要重新灌入硬编码量表数据时：
+
+```bash
 npm run init-db
-\`\`\`
+```
 
 ### 4. 启动开发服务器
 
-\`\`\`bash
+```bash
 npm run dev
-\`\`\`
+```
 
-访问 [http://localhost:3000](http://localhost:3000) 查看应用。
+访问 [http://localhost:3000](http://localhost:3000) 查看应用。默认管理员：admin@example.com / admin123（仅本地开发用）。
 
 ## 项目结构
 
@@ -189,6 +179,7 @@ rating-sys/
 - DCD-Q 发育协调障碍筛查问卷
 - RCADS 儿童焦虑抑郁综合评估量表
 - SCARED 儿童焦虑筛查量表
+- CDMM 儿童发育里程碑核验量表（8 月龄～8 岁，按矫正月龄分组，需运行 `npm run import:cdmm` 导入）
 
 ### 注意力缺陷多动障碍
 - SNAP-IV 注意缺陷多动障碍症状评估量表（家长版）
@@ -205,6 +196,7 @@ rating-sys/
 - IDA成人阅读障碍自测题
 - HSPS-27高敏感者量表
 - PSI-SF 家长养育压力量表简版
+- 神经多样性特质自筛量表 shenduo（汪星人/喵星人/敏感星人三维度，需运行 `npm run import:shenduo` 导入）
 
 ## 数据库设计
 
@@ -259,32 +251,20 @@ rating-sys/
 
 ## 部署
 
-### 使用Vercel部署
-
-1. 将代码推送到GitHub
-2. 在Vercel中导入项目
-3. 配置环境变量
-4. 部署PostgreSQL数据库（推荐使用Supabase或Neon）
-5. 运行数据库初始化脚本
-
-### 使用Docker部署
+生产环境为阿里云 ECS（nginx 反代 + pm2 运行 `next start`），使用半自动脚本部署：
 
 ```bash
-docker-compose up -d
+export RS_SERVER_PASSWORD='服务器密码'   # 或配置 SSH 免密
+./scripts/deploy.sh
 ```
 
-### 阿里云服务器部署
+流程：本地 build → push GitHub → 打包 `.next` scp 上传 → 服务器 git pull + 备份 db + pm2 重启 + 健康检查。
 
-1. 购买阿里云ECS实例（推荐2核4G以上配置）
-2. 安装Node.js 18+和PostgreSQL
-3. 克隆代码到服务器
-4. 安装依赖：`npm install`
-5. 配置环境变量
-6. 初始化数据库：`npm run init-db`
-7. 构建项目：`npm run build`
-8. 使用PM2运行：`pm2 start npm -- start`
-9. 配置Nginx反向代理
-10. 配置SSL证书
+**服务器硬约束（详见 HANDOFF.md）**：
+- 服务器内存 1.6GB，不能在服务器上 build，必须本地构建后上传 `.next`
+- 服务器无 npm 官方源，安装依赖一律加 `--registry=https://registry.npmmirror.com`
+- 绝不能覆盖服务器上的 `rating_sys.db`（真实数据）
+- 服务器 `.env` 需配置 `JWT_SECRET`（必填）与 `DB_PATH`
 
 ## 日常维护
 
@@ -295,7 +275,7 @@ docker-compose up -d
 - 定期备份数据库
 
 ### 数据维护
-- 定期备份数据库：`pg_dump -U postgres rating_sys > backup.sql`
+- 备份数据库：`sqlite3 rating_sys.db ".backup backup-$(date +%Y%m%d).db"`（或停服后直接复制文件）
 - 监控系统性能和数据库状态
 - 清理过期的测评数据
 
@@ -307,23 +287,33 @@ docker-compose up -d
 
 ## 开发指南
 
-### 如何添加新量表
+### 如何添加新量表（标准计分）
 
 1. 在 `src/data/real-scales.ts` 中添加量表信息和题目
-2. 在 `src/lib/scoring.ts` 中实现计分逻辑
-3. 运行 `npx tsx scripts/seed.ts` 导入量表到数据库
+2. 在 `src/lib/scoring.ts` 中实现计分逻辑（并在 `tests/scoring.test.ts` 补边界值测试）
+3. 运行 `npm run seed` 导入量表到数据库
 4. 验证量表是否在前台显示
+
+### 如何添加特殊量表（如 CDMM / shenduo）
+
+含特殊流程（儿童信息、分组答题等）的量表参考 CDMM 模式（spec 见 `.trae/specs/cdmm-scale/`）：纯函数计分模块 + 导入脚本 + 4 处分支（API 提交、答题页、结果页、后台只读）。改动清单与踩坑记录见 `HANDOFF.md` 第二节。
 
 ### 如何修改量表
 
 1. 在 `src/data/real-scales.ts` 中修改量表信息或题目
-2. 运行 `npx tsx scripts/seed.ts` 更新数据库
+2. 运行 `npm run seed` 更新数据库
 3. 验证修改是否生效
+
+### 提交前检查
+
+```bash
+npm run lint && npx tsc --noEmit && npm test && npm run build
+```
 
 ### 如何调试
 
 - 开发模式：`npm run dev`
-- 查看API响应：`curl http://localhost:3001/api/scales`
+- 查看API响应：`curl http://localhost:3000/api/scales`
 - 检查数据库：`sqlite3 rating_sys.db ".tables"`
 - 查看日志：`pm2 logs`（生产环境）
 
