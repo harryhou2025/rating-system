@@ -1,10 +1,10 @@
 # 靛蓝之家测评系统 - 会话交接文档
 
-生成时间：2026-08-08（CDMM 会话 + 部署完成）
+生成时间：2026-09-04（安全加固 + 工具链 + CI 会话，见第九节）
 当前分支：main
-最新 commit：5ac9675 (feat: add shenduo neurodiversity screening scale)
-GitHub：已同步 origin/main（17 个 commit）
-生产环境：已部署 2026-08-08（42.121.164.189）
+最新 commit：e20d05d (fix(ci): convert jest.config.ts to .js so tests run on Node 20)
+GitHub：已同步 origin/main，CI 绿灯（tsc + lint + jest + build）
+生产环境：已部署 2026-09-04（42.121.164.189，含全部安全修复）
 
 ---
 
@@ -13,7 +13,7 @@ GitHub：已同步 origin/main（17 个 commit）
 - 技术栈：Next.js 14 (App Router) + React 18 + TypeScript + Tailwind CSS
 - 数据库：SQLite (sqlite3)，库文件 `./rating_sys.db`（可用 DB_PATH 覆盖）
 - 认证：JWT + bcryptjs；后台管理员账号 admin@example.com（密码 admin123，仅本地开发用）
-- 测试：Jest + ts-jest（234 个测试用例，含既有 28 量表 + CDMM + shenduo）
+- 测试：Jest + ts-jest（234 个测试用例，含既有 28 量表 + CDMM + shenduo）+ GitHub Actions CI（tsc/lint/jest/build）
 - 量表数量：29 种（27 种原有 + cdmm-scale + shenduo-scale）
 - 服务器：阿里云 42.121.164.189，项目在 `/var/www/rating-sys`（pm2 `npm run start`，nginx 反代 80→3000，内存仅 1.6GB）。已 git 仓库化：HTTPS remote `origin/main`，`git pull` 即可更新代码
 
@@ -80,7 +80,7 @@ GitHub：已同步 origin/main（17 个 commit）
 
 **遗留待办**
 - webhook 自动部署未做（git 仓库化 + `scripts/deploy.sh` 半自动流程已落地，见第八节；webhook 可后置）
-- `.trae/specs/` 与 HANDOFF.md 等文档未纳入 git（如需可随时 add）
+- ~~`.trae/specs/` 与 HANDOFF.md 等文档未纳入 git~~（已于 2026-09-04 提交，见第九节）
 - 结果页红灯区：无警示数据的月龄组（8/14/16/20/22月龄、7岁、8岁）仍显示"未发现红灯"区块；若需严格按 spec 隐藏，需计分层对无警示组输出 `redFlag: null`，再由 UI 整块隐藏（当前行为与计划一致，可接受）
 - 答题页 quiz 阶段无"返回/重新填写"入口（审查 Minor，填写错需刷新重来）
 - 提供筛查机构为占位符 `XXXXXXXX`（spec Open Question 默认）
@@ -99,11 +99,10 @@ GitHub：已同步 origin/main（17 个 commit）
 
 ## 三、服务器上必须确保的环境变量
 
-JWT_SECRET、ENCRYPTION_KEY 不能为空（代码已加校验），DB_PATH 可选。
+JWT_SECRET 不能为空（代码有启动校验），DB_PATH 可选。ENCRYPTION_KEY 仅被 `src/lib/encryption.ts`（当前无任何调用方的死模块）校验，生产已配置则保留即可，未配置也不影响运行。
 
 ```
 JWT_SECRET=<至少32位随机字符串>
-ENCRYPTION_KEY=<64位十六进制字符串>
 DB_PATH=./rating_sys.db
 ```
 
@@ -122,10 +121,12 @@ DB_PATH=./rating_sys.db
 ## 五、本地命令速查
 
 - `npm run dev`          -> http://localhost:3000
-- `npm test` / `npx jest` -> 218 tests（全量）
+- `npm test` / `npx jest` -> 234 tests（全量）
 - `npm run build`        -> 构建检查
+- `npm run lint`         -> ESLint（2026-09-04 起可用，.eslintrc.json 已补）
 - `npm run import:cdmm`  -> 重新导入 CDMM 题目（幂等）
 - `npx tsc --noEmit`     -> 类型检查
+- 提交前三件套：`npm run lint && npx tsc --noEmit && npm test && npm run build`（CI 会自动跑同样的检查）
 
 ---
 
@@ -158,7 +159,7 @@ DB_PATH=./rating_sys.db
 - 登录密码 admin123 仅本地；生产 admin 密码未改（注意安全）
 
 **服务器现状**：
-- `/var/www/rating-sys`（运行中，**已 git 仓库化**：`git pull` 即可更新代码，HEAD=5ac9675，remote origin/main，git 身份已配置 harryhou2025）
+- `/var/www/rating-sys`（运行中，**已 git 仓库化**：`git pull` 即可更新代码，HEAD=e20d05d，remote origin/main，git 身份已配置 harryhou2025；2026-09-04 部署含全部安全修复）
 - `/var/www/rating-sys-manual`（手工部署旧目录备份，含完整 node_modules/.next，可回滚）
 - `/var/www/rating-sys.bak-20260808-225746`（部署前备份，可清理）
 - `/var/www/rating_sys.db.bak-20260808-225746`（部署前数据库备份，可清理）
@@ -180,3 +181,64 @@ DB_PATH=./rating_sys.db
 - **方案 C：完整 CI/CD**（Action build + SSH 部署 + 数据库迁移检查）。收益有限，暂不推荐。
 
 结论：**git 仓库化已完成**（版本可回溯、diff 可审、与本项目已有 GitHub 同步），webhook 可后置。日常发版流程：本地 `./scripts/deploy.sh` 一键半自动部署。
+
+---
+
+## 九、2026-09-04 会话记录：工程健康审计 + Critical/High 修复 + CI + 部署
+
+> 背景：对项目做了一次完整工程健康审计（只读），随后按优先级修复全部 Critical/High 问题，建立 CI，并部署到生产。审计结论：代码中等偏上，但核心知识（HANDOFF/specs）未入库、README 失真（声称 PostgreSQL/Next 15，实际 SQLite/Next 14）、存在多个无鉴权 API。
+
+### 1. 安全修复（commit 8692cf5，已上线生产并实测验证）
+
+| 接口 | 修复内容 | 生产实测 |
+|---|---|---|
+| `GET /api/assessments` | 列表含用户姓名，加 `withAdminAuth`（前端本无调用方） | 无 token → 401 ✅ |
+| `DELETE /api/assessments/[id]` | 加本人或管理员鉴权；匿名测评仅管理员可删 | 无 token → 401 ✅ |
+| `GET /api/admin/statistics` | 补 `withAdminAuth`（原为唯一未鉴权的 admin 路由） | 无 token → 401 ✅ |
+| `GET /api/scales`、`/api/admin/statistics` | 加 `export const dynamic = 'force-dynamic'`，修复**构建期静态预渲染**导致后台启停/统计数据在生产不更新的 bug | statistics 带 token 返回实时数据（4 用户/64 测评）✅ |
+| `src/app/api/user/assessments/route.ts` | 清除打印 JWT token 与完整用户数据的 console.log（泄漏进 pm2 日志） | 已清零 ✅ |
+
+**设计决策（后续维护者必知）**：
+- `GET /api/assessments/[id]` **有意保留匿名访问**：匿名测评的结果页/分享链接依赖 UUID（v4 随机，不可枚举）作为访问凭据，加鉴权会破坏产品功能。代码内有注释说明。
+- `react/no-unescaped-entities` 规则被关闭：36 处全是中文文案里的英文引号，逐个转义会大面积改动用户可见文本。
+- jwt 相关：JWT_SECRET 未轮换，已登录用户不受本次部署影响。
+
+### 2. 工具链（commit 26a951f + e20d05d）
+
+- `.eslintrc.json`（next/core-web-vitals）：`npm run lint` 由交互式卡死变为可用
+- `eslint-config-next` 15.1.6 → **14.2.13**（15.x 需 ESLint 9，与项目 ESLint 8/Next 14 不匹配）
+- **GitHub Actions CI**（`.github/workflows/ci.yml`）：push/PR 触发 tsc + lint + jest + build，首跑即抓出一个被本地 Node 22 掩盖的坑：
+  - **jest.config.ts → jest.config.js**（e20d05d）：Jest 30 在 Node < 22.18 加载 TS 配置需要 ts-node（项目未安装）。本地 Node 22 原生 type stripping 掩盖了问题，CI（node 20）失败。改为纯 JS 后全版本通吃。
+- CI 状态：run #2 全绿（https://github.com/harryhou2025/rating-system/actions）
+
+### 3. 知识入库（commit 179cc75）
+
+- 提交：HANDOFF.md、CLAUDE.md（重写为真实命令/架构/部署约束）、docs/agents/、`.trae/specs/cdmm-scale/`、`.trae/specs/shenduo-scale/`
+- README 修正：技术栈改为真实状态（Next 14 + React 18 + SQLite）、部署章节改为 deploy.sh 实际流程、补 29 量表清单与特殊量表导入说明
+- `.env.example` 修正：真实必需变量（JWT_SECRET/DB_PATH），删除 PostgreSQL 变量
+- `.gitignore` 增补：`.claude/`、`update*.tar.gz`
+
+### 4. 部署记录（2026-09-04，42.121.164.189）
+
+- 4 个 commit（8692cf5 → e20d05d）经 deploy.sh 上线：git pull Fast-forward（24 files）、db 自动备份、pm2 restart、健康检查 200
+- 验证：29 量表在线、无 token 三接口全部 401、公开接口 200、admin 链路正常、用户数据完好（零 schema 变更）
+
+### 5. 遗留问题（按优先级，未处理）
+
+**Critical（安全，需人工操作）**
+1. **生产 admin 密码仍为 admin123**：实测可登录。修改方式：登录后台改，或服务器跑 `node reset-admin-password.js` 类脚本（根目录有 reset-password.js/reset-admin-password.js 可参考）。改完 JWT_SECRET 一并轮换的话所有用户需重新登录。
+2. **Git 历史泄漏**：`rating_sys.db`（4 个真实用户邮箱 + bcrypt 哈希 + 35 条测评记录）存在于 2026-04 历史 commit（如 825160f）且**已推送公开 GitHub**。处理选项：(a) `git filter-repo` 重写全部历史 + force push + 服务器重新 clone + 删除/过滤 3 个 backup-phase* 分支（它们仍引用旧对象）；(b) 仅轮换凭证当作已泄漏；(c) 两者都做。注意：force push 后 GitHub 缓存的旧 commit 仍可短期通过 SHA 访问，需联系 GitHub Support 清除。
+
+**High（建议尽快）**
+3. **JWT_SECRET 自 2026-04 起未轮换**：与 #1/#2 一并处理（轮换后已登录用户被登出，属预期）。
+
+**Medium（择机）**
+4. 无 migration 系统：schema 靠 `src/lib/db.ts` 运行时幂等补丁（PRAGMA table_info + ALTER）；SQLite 外键约束未启用（`PRAGMA foreign_keys` 未开，声明的 ON DELETE CASCADE 实际无效）。
+5. 巨型文件：`src/app/admin/page.tsx` 1970 行（37 个 useState）、`src/data/real-scales.ts` 2189 行、`src/lib/scoring.ts` 1811 行。
+6. 新增特殊量表的 4 处分支蔓延（API 提交/答题页/结果页/后台），无注册机制，漏一处即静默劣化。
+7. 死模块 5 个未清理：`src/lib/{cache,rate-limit,encryption,export}.ts`、`src/data/sample-scales.ts`（其中 rate-limit 若接入登录/注册接口可顺手解决暴力破解面）。
+8. 测试盲区：16 个 API 路由零测试（本次的鉴权漏洞正因此漏网）；React 组件零测试。
+9. 根目录杂物：3 个 0 字节 db（data.db/database.db/db.sqlite，已被 git 跟踪）、13 个量表 txt 源、一次性脚本（reset-password.js 等）、update*.tar.gz。
+
+**Low**
+10. CDMM 答题页无"返回/重新填写"入口；`XXXXXXXX` 机构占位符；webhook 自动部署未做。
