@@ -4,10 +4,9 @@ import { verifyToken } from '@/lib/auth';
 
 export async function GET(request: Request) {
   try {
-    // 从请求头中获取token
+    // 从请求头中获取token（日志中不得输出 token 或用户数据）
     const authHeader = request.headers.get('authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      console.log('Missing or invalid authorization header');
       return NextResponse.json(
         { error: '未登录' },
         { status: 401 }
@@ -15,26 +14,17 @@ export async function GET(request: Request) {
     }
 
     const token = authHeader.substring(7);
-    console.log('Received token:', token);
     const decoded = verifyToken(token);
-    console.log('Decoded token:', decoded);
-    
+
     if (!decoded) {
-      console.log('Token verification failed');
       return NextResponse.json(
         { error: '登录已过期' },
         { status: 401 }
       );
     }
 
-    console.log('User ID from token:', decoded.userId);
-
     const db = await getDB();
-    
-    // 先检查用户是否存在
-    const user = await db.get('SELECT id, email FROM users WHERE id = ?', [decoded.userId]);
-    console.log('Found user:', user);
-    
+
     // 获取当前用户的测评记录
     const assessments = await db.all(
       `SELECT a.*, s.title as scale_title, s.category as scale_category
@@ -45,16 +35,12 @@ export async function GET(request: Request) {
       [decoded.userId]
     );
 
-    console.log('Found assessments:', assessments.length);
-    console.log('Assessments:', assessments);
-
     const parsedAssessments = assessments.map(a => ({
       ...a,
       answers: a.answers ? JSON.parse(a.answers) : null,
       result: a.result ? JSON.parse(a.result) : null,
     }));
-    
-    console.log('Returning assessments:', parsedAssessments.length);
+
     return NextResponse.json(parsedAssessments);
   } catch (error) {
     console.error('Error fetching user assessments:', error);

@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import getDB from '@/lib/db';
 
+// 量表列表须实时反映数据库（后台启停/导入），禁止构建期静态预渲染
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     // 从数据库中获取量表数据

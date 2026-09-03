@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import getDB from '@/lib/db';
+import { withAdminAuth } from '@/lib/middleware';
 import { calculateScore } from '@/lib/scoring';
 import {
   calculateCorrectedAgeDays,
@@ -155,10 +156,11 @@ export async function POST(request: Request) {
   }
 }
 
-export async function GET() {
+// 测评记录列表含用户姓名等敏感信息，仅管理员可访问（前端无调用方，后台走 /api/admin/assessments）
+async function listAssessments() {
   try {
     const db = await getDB();
-    
+
     const assessments = await db.all(
       `SELECT a.*, s.title as scale_title, u.name as user_name
        FROM assessments a
@@ -183,3 +185,5 @@ export async function GET() {
     );
   }
 }
+
+export const GET = withAdminAuth(listAssessments);

@@ -2,7 +2,10 @@ import { NextResponse } from 'next/server';
 import getDB from '@/lib/db';
 import { withAdminAuth } from '@/lib/middleware';
 
-export async function GET() {
+// 统计数据实时查询数据库，且含运营敏感信息：必须动态渲染 + 管理员鉴权
+export const dynamic = 'force-dynamic';
+
+async function getStatistics() {
   try {
     const db = await getDB();
     
@@ -56,3 +59,5 @@ export async function GET() {
     );
   }
 }
+
+export const GET = withAdminAuth(getStatistics);
