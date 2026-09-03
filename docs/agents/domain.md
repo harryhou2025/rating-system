@@ -1,5 +1,7 @@
 # Domain Docs
 
+> **[Archive]** 通用技能框架模板，非本项目实际约定。本项目无 CONTEXT.md / docs/adr/，业务背景见 `PROJECT_CONTEXT.md`。
+
 How the engineering skills should consume this repo's domain documentation when exploring the codebase.
 
 ## Before exploring, read these

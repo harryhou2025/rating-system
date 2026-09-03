@@ -9,10 +9,10 @@
     "lint": "next lint",
     "test": "jest",
     "test:watch": "jest --watch",
-    "init-db": "npx tsx src/lib/init-db.ts",
     "seed": "npx tsx scripts/seed.ts",
     "import:cdmm": "npx tsx scripts/import-cdmm.ts",
     "import:shenduo": "npx tsx scripts/import-shenduo.ts",
+    "check:docs": "node scripts/check-docs.js",
     "install:vercel": "npm install --legacy-peer-deps"
   },
   "dependencies": {

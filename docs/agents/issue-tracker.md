@@ -1,5 +1,7 @@
 # Issue tracker: Local Markdown
 
+> **[Archive]** 通用技能框架模板，非本项目实际约定（本项目无 `.scratch/` 目录，也未采用此流程）。功能设计文档实际存放在 `.trae/specs/`。
+
 Issues and specs (you may know a spec as a PRD) for this repo live as markdown files in `.scratch/`.
 
 ## Conventions

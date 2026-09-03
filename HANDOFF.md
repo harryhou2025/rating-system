@@ -1,5 +1,8 @@
 # 靛蓝之家测评系统 - 会话交接文档
 
+> **[Historical]** 本文档是 2026-09-04 及之前会话的交接**历史记录**（踩坑细节、部署流水账、决策背景），保留供查阅。
+> 当前状态以 `CURRENT_STATE.md` 为准；当前规则以 `AGENTS.md` + `docs/engineering/` 为准。两者冲突时以后者为准。
+
 生成时间：2026-09-04（安全加固 + 工具链 + CI 会话，见第九节）
 当前分支：main
 最新 commit：e20d05d (fix(ci): convert jest.config.ts to .js so tests run on Node 20)
