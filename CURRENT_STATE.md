@@ -15,8 +15,8 @@
 | 本地最新 commit       | 以 `git log -1` 为准（知识库文档自身提交会造成此行滞后，不逐 commit 维护）                |
 | Git tag / release | 无（项目从未打 tag）                                                                              |
 | 代码实际状态            | 工作区干净，无未提交改动                                                                              |
-| 是否已部署             | 是（生产环境运行中，2026-09-04 部署）                                                                  |
-| 生产环境对应 commit     | `e20d05d`（依据 HANDOFF.md 第七/九节部署记录；其后至今均为纯文档/知识库提交，功能无差异，未部署）                         |
+| 是否已部署             | 是（生产环境运行中，2026-09-08 部署）                                                                  |
+| 生产环境对应 commit     | `d5b3699`（2026-09-08：后台 Invalid Date/真实 IP/查看结果修复）                                                |
 | GitHub            | `harryhou2025/rating-system`，CI 绿灯（tsc + lint + jest + build，Node 20）                     |
 
 ## 2. 当前技术栈
@@ -112,7 +112,7 @@
 | ------------ | ---------------------------------------------------------------------------------------------------------------------------- |
 | 生产地址         | 阿里云 ECS `42.121.164.189`，nginx 反代 80→3000，pm2 运行 `next start`                                                                |
 | 服务器目录        | `/var/www/rating-sys`（已 git 仓库化，HTTPS remote origin/main）                                                                    |
-| 部署 commit    | `e20d05d`（2026-09-04，含全部安全修复）                                                                                                |
+| 部署 commit    | `d5b3699`（2026-09-08，后台记录修复 + nginx 真实 IP 头）                                                                                   |
 | 部署方式         | `./scripts/deploy.sh` 半自动（本地 build → push → scp `.next` → 服务器 git pull + 备份 db + pm2 重启 + 健康检查）                              |
 | 回滚资产         | `/var/www/rating-sys-manual`（手工部署旧目录）、`/var/www/rating-sys.bak-20260808-225746`、`/var/www/rating_sys.db.bak-20260808-225746` |
 | 服务器侧 git 外资产 | `.env`、`rating_sys.db`（真实数据）、CDMM 源 xlsx                                                                                     |
@@ -123,6 +123,7 @@
 2. 服务器无 npm 官方源，安装依赖一律加 `--registry=https://registry.npmmirror.com`
 3. **绝不能覆盖服务器上的** **`rating_sys.db`**（真实用户数据）
 4. 服务器 `.env` 必须配置 `JWT_SECRET`（代码有启动校验，缺失直接 throw）
+5. nginx `location /` 必须保留 `proxy_set_header X-Real-IP` 与 `X-Forwarded-For`（`/etc/nginx/conf.d/rating-sys.conf`，2026-09-08 添加）——测评记录的真实客户端 IP 依赖这两个头；删掉后 Next 会自动填充反代回环地址（`::1`），所有新记录 IP 失真
 
 ## 8. 当前已知风险
 
@@ -146,6 +147,12 @@
 ## 9. Recent Important Changes（最近重要变化）
 
 > 只记重要变化（新功能上线、schema 变更、安全修复、部署、技术栈/机制变化），普通小修复不记录。新条目加在最上面；条目过多时将旧内容移入历史归档目录（建立时在下方文档地图登记）。让新 AI 不必翻几十个 commit 就知道最近发生了什么。
+
+**2026-09-08（后台测评记录修复，commit d5b3699，已部署）**
+
+- 修复后台 Invalid Date：SQLite UTC 时间戳改用标准 ISO 解析（Safari 下 `+ ' UTC'` 拼接返回 Invalid Date）
+- 测评记录真实 IP：POST body 不再信任前端 `ipAddress`（原硬编码 127.0.0.1），服务端改读 `X-Forwarded-For` / `X-Real-IP`；nginx `location /` 补配这两个头（历史记录 IP 已失真，无法恢复）
+- 后台测评记录表新增"查看结果"链接（打开 `/result/[id]`）
 
 **2026-09-04（第三阶段，知识同步机制）**
 
