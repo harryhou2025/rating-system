@@ -7,6 +7,7 @@ import { ArrowLeft, FileText, Calendar, User, Scale } from 'lucide-react';
 import Image from 'next/image';
 import CDMMResult from '@/components/cdmm/CDMMResult';
 import ShenduoResult from '@/components/shenduo/ShenduoResult';
+import ResultLoginBanner from '@/components/ResultLoginBanner';
 
 const ResultPage: React.FC = () => {
   const params = useParams();
@@ -150,15 +151,26 @@ const ResultPage: React.FC = () => {
   const result = assessment.result || {};
 
   if (scale.id === 'cdmm-scale') {
-    return <CDMMResult assessment={assessment} scale={scale} />;
+    return (
+      <>
+        <ResultLoginBanner assessmentId={assessmentId} />
+        <CDMMResult assessment={assessment} scale={scale} />
+      </>
+    );
   }
 
   if (scale.id === 'shenduo-scale') {
-    return <ShenduoResult assessment={assessment} scale={scale} />;
+    return (
+      <>
+        <ResultLoginBanner assessmentId={assessmentId} />
+        <ShenduoResult assessment={assessment} scale={scale} />
+      </>
+    );
   }
 
   return (
     <div className="min-h-screen bg-[#0f172a] text-[#f8fafc] font-sans">
+      <ResultLoginBanner assessmentId={assessmentId} />
       {/* Background */}
       <div className="fixed inset-0">
         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-gradient-to-br from-teal-600/20 via-cyan-500/10 to-transparent rounded-full blur-3xl transform translate-x-1/3 -translate-y-1/3" />

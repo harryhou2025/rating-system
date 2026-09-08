@@ -148,6 +148,13 @@
 
 > 只记重要变化（新功能上线、schema 变更、安全修复、部署、技术栈/机制变化），普通小修复不记录。新条目加在最上面；条目过多时将旧内容移入历史归档目录（建立时在下方文档地图登记）。让新 AI 不必翻几十个 commit 就知道最近发生了什么。
 
+**2026-09-08b（测评提交登录软引导，未部署）**
+
+- 产品决策：未登录用户答完题提交时弹软引导（登录/注册保存记录 vs 匿名查看，可跳过）；登录注册后回跳自动提交（sessionStorage key `pending_assessment` 暂存答案）；结果页顶部未登录显示可关闭登录引导条；后台测评记录用户列 `-` 改显「匿名」
+- 匿名路径与分享链接保持公开不变（规则 3 更新，接口鉴权禁令不变）
+- 涉及：3 个答题组件（通用/CDMM/shenduo）、login/register（`?redirect=` 回跳）、result 页、admin 页；新增 `LoginPrompt.tsx`、`ResultLoginBanner.tsx`；顺带修复 result 页 formatDate 的 Safari 日期解析
+- 注意：login/register 页组件内不得在渲染期访问 `window`（预渲染会挂），只能放 useEffect/事件处理器
+
 **2026-09-08（后台测评记录修复，commit d5b3699，已部署）**
 
 - 修复后台 Invalid Date：SQLite UTC 时间戳改用标准 ISO 解析（Safari 下 `+ ' UTC'` 拼接返回 Invalid Date）

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { useToast } from '@/components/ui/toast';
+import LoginPrompt from '@/components/LoginPrompt';
 import { SHEINDUO_TRAITS } from '@/lib/shenduo';
 
 interface ShenduoQuestion {
@@ -30,6 +31,7 @@ const ShenduoAssessment: React.FC<Props> = ({ scale, questions }) => {
   const [partIndex, setPartIndex] = React.useState(0);
   const [answers, setAnswers] = React.useState<Record<string, number>>({});
   const [submitting, setSubmitting] = React.useState(false);
+  const [showLoginPrompt, setShowLoginPrompt] = React.useState(false);
 
   const parts = SHEINDUO_TRAITS.map((t) => ({
     ...t,
@@ -47,13 +49,8 @@ const ShenduoAssessment: React.FC<Props> = ({ scale, questions }) => {
     setPartIndex((i) => Math.min(parts.length - 1, i + 1));
   };
 
-  const handleSubmit = async () => {
+  const doSubmit = async (finalAnswers: Record<string, number>) => {
     if (submitting) return;
-    const unanswered = part.questions.filter((q) => answers[q.id] === undefined);
-    if (unanswered.length > 0) {
-      toast('warning', `还有 ${unanswered.length} 题未作答`);
-      return;
-    }
     try {
       setSubmitting(true);
       const userStr = localStorage.getItem('user');
@@ -64,7 +61,7 @@ const ShenduoAssessment: React.FC<Props> = ({ scale, questions }) => {
         body: JSON.stringify({
           userId: user?.id,
           scaleId: scale.id,
-          answers,
+          answers: finalAnswers,
         }),
       });
       if (!res.ok) {
@@ -79,6 +76,43 @@ const ShenduoAssessment: React.FC<Props> = ({ scale, questions }) => {
       setSubmitting(false);
     }
   };
+
+  const handleSubmit = async () => {
+    if (submitting) return;
+    const unanswered = part.questions.filter((q) => answers[q.id] === undefined);
+    if (unanswered.length > 0) {
+      toast('warning', `还有 ${unanswered.length} 题未作答`);
+      return;
+    }
+
+    // 未登录：软引导（可登录保存记录，也可匿名查看），答案暂存以便登录后自动提交
+    const userStr = localStorage.getItem('user');
+    if (!userStr) {
+      sessionStorage.setItem('pending_assessment', JSON.stringify({ scaleId: scale.id, answers }));
+      setShowLoginPrompt(true);
+      return;
+    }
+
+    await doSubmit(answers);
+  };
+
+  // 登录/注册后回跳：恢复暂存的答案并自动提交
+  React.useEffect(() => {
+    const saved = sessionStorage.getItem('pending_assessment');
+    if (!saved) return;
+    let parsed: { scaleId: string; answers: Record<string, number> };
+    try {
+      parsed = JSON.parse(saved);
+    } catch {
+      sessionStorage.removeItem('pending_assessment');
+      return;
+    }
+    if (parsed.scaleId !== scale.id) return;
+    sessionStorage.removeItem('pending_assessment');
+    if (!localStorage.getItem('token')) return;
+    doSubmit(parsed.answers);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // ---------- 使用说明 ----------
   if (phase === 'intro') {
@@ -247,6 +281,14 @@ const ShenduoAssessment: React.FC<Props> = ({ scale, questions }) => {
           )}
         </div>
       </div>
+      <LoginPrompt
+        open={showLoginPrompt}
+        redirectPath={`/assessment/${scale.id}`}
+        onAnonymous={() => {
+          setShowLoginPrompt(false);
+          doSubmit(answers);
+        }}
+      />
     </div>
   );
 };

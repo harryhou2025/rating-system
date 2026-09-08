@@ -973,7 +973,7 @@ const AdminPage = () => {
                         {assessments.map((assessment, index) => (
                           <tr key={assessment.id || `assessment-${index}`} className="border-b border-slate-200 hover:bg-slate-50">
                             <td className="px-4 py-3 text-sm text-slate-600">{assessment.id}</td>
-                            <td className="px-4 py-3 text-sm text-slate-600">{assessment.user_name || '-'}</td>
+                            <td className="px-4 py-3 text-sm text-slate-600">{assessment.user_name || '匿名'}</td>
                             <td className="px-4 py-3 text-sm text-slate-600">{assessment.scale_title}</td>
                             <td className="px-4 py-3 text-sm text-slate-600">{assessment.scale_category}</td>
                             <td className="px-4 py-3 text-sm text-slate-600">

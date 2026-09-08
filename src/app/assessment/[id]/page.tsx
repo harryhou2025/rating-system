@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { ArrowLeft, ArrowRight, Clock, Users, BookOpen } from 'lucide-react';
 import Image from 'next/image';
 import { useToast } from '@/components/ui/toast';
+import LoginPrompt from '@/components/LoginPrompt';
 import CDMMAssessment from '@/components/cdmm/CDMMAssessment';
 import ShenduoAssessment from '@/components/shenduo/ShenduoAssessment';
 
@@ -20,6 +21,7 @@ const AssessmentPage = () => {
   const [isLoading, setIsLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [validationHint, setValidationHint] = React.useState(false);
+  const [showLoginPrompt, setShowLoginPrompt] = React.useState(false);
   const { toast } = useToast();
 
   React.useEffect(() => {
@@ -53,14 +55,8 @@ const AssessmentPage = () => {
     }));
   };
 
-  const handleSubmit = async () => {
+  const doSubmit = async (finalAnswers: Record<string, string | string[]>) => {
     try {
-      const allAnswered = questions.every(q => answers[q.id] !== undefined);
-      if (!allAnswered) {
-        toast('warning', '请回答所有题目');
-        return;
-      }
-
       const userStr = localStorage.getItem('user');
       const user = userStr ? JSON.parse(userStr) : null;
 
@@ -72,7 +68,7 @@ const AssessmentPage = () => {
         body: JSON.stringify({
           userId: user?.id,
           scaleId: id,
-          answers,
+          answers: finalAnswers,
         }),
       });
 
@@ -86,6 +82,44 @@ const AssessmentPage = () => {
       toast('error', '提交失败，请重试');
     }
   };
+
+  const handleSubmit = async () => {
+    const allAnswered = questions.every(q => answers[q.id] !== undefined);
+    if (!allAnswered) {
+      toast('warning', '请回答所有题目');
+      return;
+    }
+
+    // 未登录：软引导（可登录保存记录，也可匿名查看），答案暂存以便登录后自动提交
+    const userStr = localStorage.getItem('user');
+    if (!userStr) {
+      sessionStorage.setItem('pending_assessment', JSON.stringify({ scaleId: id, answers }));
+      setShowLoginPrompt(true);
+      return;
+    }
+
+    await doSubmit(answers);
+  };
+
+  // 登录/注册后回跳：恢复暂存的答案并自动提交
+  React.useEffect(() => {
+    if (isLoading || !questions.length) return;
+    const saved = sessionStorage.getItem('pending_assessment');
+    if (!saved) return;
+    let parsed: { scaleId: string; answers: Record<string, string | string[]> };
+    try {
+      parsed = JSON.parse(saved);
+    } catch {
+      sessionStorage.removeItem('pending_assessment');
+      return;
+    }
+    if (parsed.scaleId !== id) return;
+    sessionStorage.removeItem('pending_assessment');
+    if (!localStorage.getItem('token')) return;
+    setAnswers(parsed.answers);
+    doSubmit(parsed.answers);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoading, questions, id]);
 
   if (isLoading) {
     return (
@@ -295,6 +329,14 @@ const AssessmentPage = () => {
           )}
         </div>
       </div>
+      <LoginPrompt
+        open={showLoginPrompt}
+        redirectPath={`/assessment/${id}`}
+        onAnonymous={() => {
+          setShowLoginPrompt(false);
+          doSubmit(answers);
+        }}
+      />
     </div>
   );
 };

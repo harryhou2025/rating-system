@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { useToast } from '@/components/ui/toast';
+import LoginPrompt from '@/components/LoginPrompt';
 import { matchAgeGroup, formatAgeDisplay, calculateCorrectedAgeDays, CDMM_DIMENSIONS } from '@/lib/cdmm';
 
 interface CdmmQuestion {
@@ -39,6 +40,7 @@ const CDMMAssessment: React.FC<Props> = ({ scale, questions }) => {
   const [currentGroup, setCurrentGroup] = React.useState(0);
   const [answers, setAnswers] = React.useState<Record<string, number>>({});
   const [submitting, setSubmitting] = React.useState(false);
+  const [showLoginPrompt, setShowLoginPrompt] = React.useState(false);
 
   const handleMatch = () => {
     setMatchError(null);
@@ -68,14 +70,9 @@ const CDMMAssessment: React.FC<Props> = ({ scale, questions }) => {
     setPhase('quiz');
   };
 
-  const handleSubmit = async () => {
+  const doSubmit = async (finalAnswers: Record<string, number>) => {
     if (submitting) return;
     try {
-      const unanswered = groupQuestions.filter((q) => answers[q.id] === undefined);
-      if (unanswered.length > 0) {
-        toast('warning', `还有 ${unanswered.length} 题未作答`);
-        return;
-      }
       setSubmitting(true);
       const userStr = localStorage.getItem('user');
       const user = userStr ? JSON.parse(userStr) : null;
@@ -85,7 +82,7 @@ const CDMMAssessment: React.FC<Props> = ({ scale, questions }) => {
         body: JSON.stringify({
           userId: user?.id,
           scaleId: scale.id,
-          answers,
+          answers: finalAnswers,
           childInfo: {
             name: childInfo.name.trim(),
             gender: childInfo.gender,
@@ -107,6 +104,51 @@ const CDMMAssessment: React.FC<Props> = ({ scale, questions }) => {
       setSubmitting(false);
     }
   };
+
+  const handleSubmit = async () => {
+    if (submitting) return;
+    const unanswered = groupQuestions.filter((q) => answers[q.id] === undefined);
+    if (unanswered.length > 0) {
+      toast('warning', `还有 ${unanswered.length} 题未作答`);
+      return;
+    }
+
+    // 未登录：软引导（可登录保存记录，也可匿名查看），答案与儿童信息暂存以便登录后自动提交
+    const userStr = localStorage.getItem('user');
+    if (!userStr) {
+      sessionStorage.setItem(
+        'pending_assessment',
+        JSON.stringify({ scaleId: scale.id, answers, childInfo })
+      );
+      setShowLoginPrompt(true);
+      return;
+    }
+
+    await doSubmit(answers);
+  };
+
+  // 登录/注册后回跳：恢复暂存的答案与儿童信息并自动提交
+  React.useEffect(() => {
+    const saved = sessionStorage.getItem('pending_assessment');
+    if (!saved) return;
+    let parsed: {
+      scaleId: string;
+      answers: Record<string, number>;
+      childInfo?: typeof childInfo;
+    };
+    try {
+      parsed = JSON.parse(saved);
+    } catch {
+      sessionStorage.removeItem('pending_assessment');
+      return;
+    }
+    if (parsed.scaleId !== scale.id) return;
+    sessionStorage.removeItem('pending_assessment');
+    if (!localStorage.getItem('token')) return;
+    if (parsed.childInfo) setChildInfo(parsed.childInfo);
+    doSubmit(parsed.answers);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const curQuestions = groupQuestions.filter((q) => q.dimension === groupNames[currentGroup]);
 

@@ -14,6 +14,13 @@ const RegisterPage: React.FC = () => {
   });
   const [error, setError] = React.useState<string | null>(null);
   const [isLoading, setIsLoading] = React.useState(false);
+  // 注册成功后回跳地址；注册↔登录切换时透传
+  const [loginLink, setLoginLink] = React.useState('/login');
+
+  React.useEffect(() => {
+    const r = new URLSearchParams(window.location.search).get('redirect');
+    if (r && r.startsWith('/')) setLoginLink(`/login?redirect=${encodeURIComponent(r)}`);
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -66,8 +73,9 @@ const RegisterPage: React.FC = () => {
       
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
-      
-      window.location.href = '/';
+
+      const redirect = new URLSearchParams(window.location.search).get('redirect');
+      window.location.href = redirect && redirect.startsWith('/') ? redirect : '/';
     } catch (err) {
       setError(err instanceof Error ? err.message : '注册失败');
     } finally {
@@ -206,7 +214,7 @@ const RegisterPage: React.FC = () => {
               <div className="text-center text-sm text-white/50">
                 已有账号？{' '}
                 <Link
-                  href="/login"
+                  href={loginLink}
                   className="text-teal-400 hover:text-teal-300 transition-colors"
                 >
                   登录
