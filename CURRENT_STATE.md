@@ -16,7 +16,7 @@
 | Git tag / release | 无（项目从未打 tag）                                                                              |
 | 代码实际状态            | 工作区干净，无未提交改动                                                                              |
 | 是否已部署             | 是（生产环境运行中，2026-09-08 部署）                                                                  |
-| 生产环境对应 commit     | `d5b3699`（2026-09-08：后台 Invalid Date/真实 IP/查看结果修复）                                                |
+| 生产环境对应 commit     | `270e72d`（2026-09-08：测评提交登录软引导 + 后台 Invalid Date/真实 IP/查看结果修复）                          |
 | GitHub            | `harryhou2025/rating-system`，CI 绿灯（tsc + lint + jest + build，Node 20）                     |
 
 ## 2. 当前技术栈
