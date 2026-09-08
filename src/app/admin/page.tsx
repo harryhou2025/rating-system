@@ -923,7 +923,7 @@ const AdminPage = () => {
                               </span>
                             </td>
                             <td className="px-4 py-3 text-sm text-slate-600">
-                              {new Date(user.created_at + ' UTC').toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })}
+                              {new Date(user.created_at.replace(' ', 'T') + 'Z').toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })}
                             </td>
                           </tr>
                         ))}
@@ -966,6 +966,7 @@ const AdminPage = () => {
                           <th className="px-4 py-3 text-left text-sm font-semibold text-slate-700">类型</th>
                           <th className="px-4 py-3 text-left text-sm font-semibold text-slate-700">完成时间</th>
                           <th className="px-4 py-3 text-left text-sm font-semibold text-slate-700">IP地址</th>
+                          <th className="px-4 py-3 text-left text-sm font-semibold text-slate-700">操作</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -976,9 +977,17 @@ const AdminPage = () => {
                             <td className="px-4 py-3 text-sm text-slate-600">{assessment.scale_title}</td>
                             <td className="px-4 py-3 text-sm text-slate-600">{assessment.scale_category}</td>
                             <td className="px-4 py-3 text-sm text-slate-600">
-                              {assessment.completed_at ? new Date(assessment.completed_at + ' UTC').toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' }) : '-'}
+                              {assessment.completed_at ? new Date(assessment.completed_at.replace(' ', 'T') + 'Z').toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' }) : '-'}
                             </td>
                             <td className="px-4 py-3 text-sm text-slate-600">{assessment.ip_address}</td>
+                            <td className="px-4 py-3 text-sm">
+                              <button
+                                onClick={() => window.open(`/result/${assessment.id}`, '_blank')}
+                                className="text-indigo-600 hover:text-indigo-800 font-medium"
+                              >
+                                查看结果
+                              </button>
+                            </td>
                           </tr>
                         ))}
                       </tbody>
@@ -1108,7 +1117,7 @@ const AdminPage = () => {
                               </span>
                             </td>
                             <td className="px-4 py-3 text-sm text-slate-600">
-                              {new Date(scale.created_at + ' UTC').toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })}
+                              {new Date(scale.created_at.replace(' ', 'T') + 'Z').toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })}
                             </td>
                             <td className="px-4 py-3 text-sm text-slate-600">
                               <div className="flex gap-2">

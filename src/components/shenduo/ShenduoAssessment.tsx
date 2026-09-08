@@ -65,7 +65,6 @@ const ShenduoAssessment: React.FC<Props> = ({ scale, questions }) => {
           userId: user?.id,
           scaleId: scale.id,
           answers,
-          ipAddress: '127.0.0.1',
         }),
       });
       if (!res.ok) {

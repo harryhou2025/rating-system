@@ -13,8 +13,12 @@ import { v4 as uuidv4 } from 'uuid';
 
 export async function POST(request: Request) {
   try {
-    const { userId, scaleId, answers, ipAddress, childInfo } = await request.json();
-    
+    const { userId, scaleId, answers, childInfo } = await request.json();
+
+    // 真实客户端 IP 从反代头取（nginx 需设置 X-Forwarded-For）；body 里的 ipAddress 不可信
+    const forwarded = request.headers.get('x-forwarded-for');
+    const ipAddress = forwarded?.split(',')[0].trim() || request.headers.get('x-real-ip') || 'unknown';
+
     const db = await getDB();
 
     // CDMM 专用流程：需儿童信息 + 题目上下文计分

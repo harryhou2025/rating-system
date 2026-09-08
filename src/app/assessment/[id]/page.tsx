@@ -73,7 +73,6 @@ const AssessmentPage = () => {
           userId: user?.id,
           scaleId: id,
           answers,
-          ipAddress: '127.0.0.1'
         }),
       });
 

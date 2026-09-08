@@ -86,7 +86,6 @@ const CDMMAssessment: React.FC<Props> = ({ scale, questions }) => {
           userId: user?.id,
           scaleId: scale.id,
           answers,
-          ipAddress: '127.0.0.1',
           childInfo: {
             name: childInfo.name.trim(),
             gender: childInfo.gender,
