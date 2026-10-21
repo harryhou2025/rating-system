@@ -114,7 +114,7 @@
 | 服务器目录        | `/var/www/rating-sys`（已 git 仓库化，HTTPS remote origin/main）                                                                    |
 | 部署 commit    | `4983efd`（2026-10-21，计分归一化 + 后台登录态失效处理）                                                                                      |
 | 部署方式         | `./scripts/deploy.sh` 半自动（本地 build → push → scp `.next` → 服务器 git pull + 备份 db + pm2 重启 + 健康检查）                              |
-| 回滚资产         | `/var/www/rating-sys-manual`（手工部署旧目录）、`/var/www/rating-sys.bak-20260808-225746`、`/var/www/rating_sys.db.bak-20260808-225746` |
+| 回滚资产         | `/var/www/rating-sys-manual`（手工部署旧目录）、`/var/www/rating-sys.bak-20260808-225746`、`/var/www/rating_sys.db.bak-20260808-225746`、`/var/www/rating-sys/rating_sys.db.bak-20261021-admin-pw`（改密前备份） |
 | 服务器侧 git 外资产 | `.env`、`rating_sys.db`（真实数据）、CDMM 源 xlsx                                                                                     |
 
 **服务器硬约束（违反会导致部署失败或数据丢失）**：
@@ -131,9 +131,9 @@
 
 | #  | 级别           | 风险                                                                                                                                                                         | 状态  |
 | -- | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --- |
-| 1  | **Critical** | 生产 admin 密码仍为默认 `admin123`（实测可登录）。需人工登录后台修改，或服务器跑 `reset-admin-password.js`                                                                                                | 未处理 |
+| 1  | **Critical** | 生产 admin 密码：2026-10-21 已从默认 `admin123` 重置为强密码（密码仅交付用户，不写入仓库）；重置前已备份 `rating_sys.db.bak-20261021-admin-pw`。注意：系统暂无自助改密页面，后续改密仍需服务器脚本 | 已处理（2026-10-21） |
 | 2  | **Critical** | Git 历史泄漏：含真实用户数据的 `rating_sys.db` 存在于 2026-04 历史 commit（如 825160f）且已推送公开 GitHub。处理需 `git filter-repo` 重写历史 + force push + 服务器重新 clone（backup-phase\* 分支也引用旧对象），或视为已泄漏仅轮换凭证 | 未处理 |
-| 3  | High         | JWT\_SECRET 自 2026-04 起未轮换（与 #1/#2 一并处理；轮换后所有登录态失效，属预期）                                                                                                                    | 未处理 |
+| 3  | High         | JWT\_SECRET 自 2026-04 起未轮换（与 #2 一并处理；轮换后所有登录态失效，属预期）                                                                                                                    | 未处理 |
 | 4  | Medium       | SQLite 外键约束未启用（见第 5 节）                                                                                                                                                     | 未处理 |
 | 5  | Medium       | 巨型文件：`admin/page.tsx` 1970 行、`real-scales.ts` 2189 行、`scoring.ts` 1811 行                                                                                                   | 未处理 |
 | 6  | Medium       | 特殊量表 4 处分支蔓延（无注册机制，漏一处即静默劣化），见 CRITICAL\_BUSINESS\_RULES.md 规则 6                                                                                                           | 未处理 |
@@ -157,6 +157,7 @@
 - 新增业务规则 13（答案键必须按数据库题目顺序归一化）；补 4 个归一化用例 + 21 个受影响量表 UUID/qN 一致性用例
 - 验证：`npm run lint`（1 个既有 warning）、`npx tsc --noEmit`、`npm test` 259/259、`npm run build` 全部通过；本地端到端 CAT-Q 全 4 分 = 94/高掩饰、不完整答案 = 400、shenduo 正常
 - 生产部署：`./scripts/deploy.sh` 完成，服务器 `git log` 为 `4983efd`，新构建包含"答案不完整"校验，本机健康检查 200；外网 `admin` 四个接口均 200，`/admin` 与 `/assessment/catq-scale` 均 200
+- 生产 admin 密码重置：2026-10-21 将 `admin@example.com` 从默认 `admin123` 改为强密码（不在仓库记录）；实测新密码登录 200、旧密码 401、后台接口 200；改密前 DB 已备份为 `rating_sys.db.bak-20261021-admin-pw`
 
 **2026-09-08b（测评提交登录软引导，commit 270e72d，已部署，三条路径浏览器实测通过）**
 
