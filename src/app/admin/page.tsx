@@ -90,6 +90,22 @@ const AdminPage = () => {
   const [searchCategory, setSearchCategory] = React.useState('');
   const { toast } = useToast();
 
+  // 后台请求统一携带 token；401/403 说明登录态失效，清理本地会话并回到登录页
+  const adminFetch = React.useCallback(async (input: RequestInfo | URL, init?: RequestInit) => {
+    const headers = new Headers(init?.headers);
+    headers.set('Authorization', `Bearer ${localStorage.getItem('token')}`);
+
+    const response = await fetch(input, { ...init, headers });
+
+    if (response.status === 401 || response.status === 403) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = '/admin-login';
+    }
+
+    return response;
+  }, []);
+
   React.useEffect(() => {
     // 检查用户是否已登录且是管理员
     const userStr = localStorage.getItem('user');
@@ -113,7 +129,7 @@ const AdminPage = () => {
     const fetchStats = async () => {
       try {
         setStatsLoading(true);
-        const response = await fetch('/api/admin/statistics', {
+        const response = await adminFetch('/api/admin/statistics', {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -132,7 +148,7 @@ const AdminPage = () => {
     };
 
     fetchStats();
-  }, []);
+  }, [adminFetch]);
 
   const COLORS = ['#0d9488', '#0891b2', '#059669', '#d97706', '#7c3aed', '#dc2626', '#ea580c', '#65a30d'];
 
@@ -159,7 +175,7 @@ const AdminPage = () => {
       setCreateFormError(null);
 
       const token = localStorage.getItem('token');
-      const response = await fetch('/api/admin/scales', {
+      const response = await adminFetch('/api/admin/scales', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -223,7 +239,7 @@ const AdminPage = () => {
       setEditFormError(null);
 
       const token = localStorage.getItem('token');
-      const response = await fetch('/api/admin/scales', {
+      const response = await adminFetch('/api/admin/scales', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -278,7 +294,7 @@ const AdminPage = () => {
     
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`/api/admin/scales/${scaleId}/questions`, {
+      const response = await adminFetch(`/api/admin/scales/${scaleId}/questions`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -316,7 +332,7 @@ const AdminPage = () => {
       setAddQuestionError(null);
 
       const token = localStorage.getItem('token');
-      const response = await fetch(`/api/admin/scales/${currentScaleId}/questions`, {
+      const response = await adminFetch(`/api/admin/scales/${currentScaleId}/questions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -372,7 +388,7 @@ const AdminPage = () => {
       setEditQuestionError(null);
 
       const token = localStorage.getItem('token');
-      const response = await fetch(`/api/admin/scales/${currentScaleId}/questions`, {
+      const response = await adminFetch(`/api/admin/scales/${currentScaleId}/questions`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -417,7 +433,7 @@ const AdminPage = () => {
     if (confirm('确定要删除该题目吗？')) {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`/api/admin/scales/${currentScaleId}/questions`, {
+        const response = await adminFetch(`/api/admin/scales/${currentScaleId}/questions`, {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
@@ -446,7 +462,7 @@ const AdminPage = () => {
   const handleReorderQuestions = async (newQuestions: any[]) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`/api/admin/scales/${currentScaleId}/questions`, {
+      const response = await adminFetch(`/api/admin/scales/${currentScaleId}/questions`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -477,7 +493,7 @@ const AdminPage = () => {
     try {
       const token = localStorage.getItem('token');
       // 获取题目列表
-      const questionsResponse = await fetch(`/api/admin/scales/${scale.id}/questions`, {
+      const questionsResponse = await adminFetch(`/api/admin/scales/${scale.id}/questions`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -521,7 +537,7 @@ const AdminPage = () => {
           break;
         case 'users':
           // 获取用户列表
-          const usersResponse = await fetch('/api/admin/users', {
+          const usersResponse = await adminFetch('/api/admin/users', {
             headers: {
               'Authorization': `Bearer ${token}`
             }
@@ -534,7 +550,7 @@ const AdminPage = () => {
           }
           break;
         case 'assessments':
-          const assessmentsResponse = await fetch('/api/admin/assessments', {
+          const assessmentsResponse = await adminFetch('/api/admin/assessments', {
             headers: {
               'Authorization': `Bearer ${token}`
             }
@@ -547,7 +563,7 @@ const AdminPage = () => {
           }
           break;
         case 'scales':
-          const scalesResponse = await fetch('/api/admin/scales', {
+          const scalesResponse = await adminFetch('/api/admin/scales', {
             headers: {
               'Authorization': `Bearer ${token}`
             }
@@ -1162,7 +1178,7 @@ const AdminPage = () => {
                                     if (confirm(`确定要${scale.is_active ? '禁用' : '启用'}该量表吗？`)) {
                                       try {
                                         const token = localStorage.getItem('token');
-                                        const response = await fetch('/api/admin/scales', {
+                                        const response = await adminFetch('/api/admin/scales', {
                                           method: 'PATCH',
                                           headers: {
                                             'Content-Type': 'application/json',
@@ -1195,7 +1211,7 @@ const AdminPage = () => {
                                     if (confirm('确定要删除该量表吗？\n注意：已被使用的量表无法删除。')) {
                                       try {
                                         const token = localStorage.getItem('token');
-                                        const response = await fetch('/api/admin/scales', {
+                                        const response = await adminFetch('/api/admin/scales', {
                                           method: 'DELETE',
                                           headers: {
                                             'Content-Type': 'application/json',

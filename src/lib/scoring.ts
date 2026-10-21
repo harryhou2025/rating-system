@@ -900,42 +900,31 @@ export function calculateCONNERS3PARENT(answers: Record<string, number>): Scorin
   };
 }
 
-import { questions as scaleQuestions } from '@/data/real-scales';
+/**
+ * 将前端提交的题目 UUID 键答案按数据库题目顺序归一化为 qN 键。
+ *
+ * 题目顺序必须来自数据库（questions.order），不能使用内存中的种子数据：
+ * real-scales.ts 的题目 UUID 在每次进程启动时重新生成，与库中已存 UUID 不一致。
+ */
+export function normalizeAnswersByQuestionOrder(
+  answers: Record<string, number>,
+  orderByQuestionId: Map<string, number>,
+): Record<string, number> {
+  const normalized: Record<string, number> = {};
 
-function buildQuestionOrderMap(): Map<string, number> {
-  const map = new Map<string, number>();
-  for (const q of scaleQuestions) {
-    map.set(q.id, q.order);
-  }
-  return map;
-}
-
-const questionOrderMap = buildQuestionOrderMap();
-
-function isUUIDKey(key: string): boolean {
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(key);
-}
-
-function normalizeAnswers(answers: Record<string, number>): Record<string, number> {
-  const keys = Object.keys(answers);
-  if (keys.length === 0) return answers;
-
-  if (isUUIDKey(keys[0])) {
-    const normalized: Record<string, number> = {};
-    for (const [questionId, value] of Object.entries(answers)) {
-      const order = questionOrderMap.get(questionId);
-      if (order !== undefined) {
-        normalized[`q${order}`] = value;
-      }
+  for (const [key, value] of Object.entries(answers)) {
+    const order = orderByQuestionId.get(key);
+    if (order !== undefined) {
+      normalized[`q${order}`] = value;
+    } else if (/^q\d+$/.test(key)) {
+      normalized[key] = value;
     }
-    return normalized;
   }
 
-  return answers;
+  return normalized;
 }
 
 export function calculateScore(scaleId: string, answers: Record<string, number>): ScoringResult {
-  answers = normalizeAnswers(answers);
   switch (scaleId) {
     case 'gad7-scale':
       return calculateGAD7(answers);

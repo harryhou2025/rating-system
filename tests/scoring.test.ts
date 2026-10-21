@@ -27,6 +27,7 @@ import {
   calculateHSPS,
   calculatePSI_SF,
   calculateScore,
+  normalizeAnswersByQuestionOrder,
   type ScoringResult,
 } from '@/lib/scoring';
 
@@ -1841,5 +1842,105 @@ describe('calculatePSI_SF', () => {
     expect(result.totalScore).toBe(87);
     expect(result.severity).toBe('高压');
     expect(result.recommendation).toContain('较高');
+  });
+});
+
+describe('normalizeAnswersByQuestionOrder - UUID 答案归一化', () => {
+  function buildUuidAnswers(count: number, value: number) {
+    const questionIds = Array.from(
+      { length: count },
+      (_, i) => `11111111-1111-4111-8111-${String(i + 1).padStart(12, '0')}`,
+    );
+    const orderByQuestionId = new Map(questionIds.map((id, i) => [id, i + 1] as const));
+    const answers = Object.fromEntries(questionIds.map(id => [id, value]));
+    return { answers, orderByQuestionId };
+  }
+
+  it('UUID 键按数据库题目顺序转为 qN，CATQ 全 4 分应为 94 分', () => {
+    const { answers, orderByQuestionId } = buildUuidAnswers(25, 4);
+    const normalized = normalizeAnswersByQuestionOrder(answers, orderByQuestionId);
+
+    expect(Object.keys(normalized)).toHaveLength(25);
+    expect(normalized.q1).toBe(4);
+    expect(normalized.q25).toBe(4);
+
+    const result = calculateScore('catq-scale', normalized);
+    expect(result.totalScore).toBe(94);
+    expect(result.severity).toBe('高掩饰水平');
+  });
+
+  it('UUID 答案归一化对 SCL-90 同样生效', () => {
+    const { answers, orderByQuestionId } = buildUuidAnswers(90, 4);
+    const normalized = normalizeAnswersByQuestionOrder(answers, orderByQuestionId);
+
+    const result = calculateScore('scl90-scale', normalized);
+    expect(result.totalScore).toBe(360);
+    expect(result.severity).toBe('阳性');
+  });
+
+  it('兼容旧的 qN 键答案', () => {
+    const answers = buildAnswers(25, 4);
+    const normalized = normalizeAnswersByQuestionOrder(answers, new Map());
+
+    expect(normalized).toEqual(answers);
+  });
+
+  it('丢弃数据库题目中不存在的键', () => {
+    const { answers, orderByQuestionId } = buildUuidAnswers(2, 3);
+    answers['99999999-9999-4999-8999-999999999999'] = 4;
+
+    const normalized = normalizeAnswersByQuestionOrder(answers, orderByQuestionId);
+
+    expect(Object.keys(normalized)).toHaveLength(2);
+    expect(normalized.q1).toBe(3);
+    expect(normalized.q2).toBe(3);
+  });
+
+  // 覆盖历史受影响清单中的全部量表：UUID 路径必须与 qN 路径结果完全一致
+  const affectedScales: Array<[string, number]> = [
+    ['scl90-scale', 90],
+    ['aq-scale', 50],
+    ['rcads-scale', 47],
+    ['scared-scale', 41],
+    ['snapiv-scale', 26],
+    ['vanderbilt-scale', 57],
+    ['conners3-parent-scale', 110],
+    ['conners3-teacher-scale', 105],
+    ['gars3-scale', 56],
+    ['catq-scale', 25],
+    ['cati-scale', 58],
+    ['brown-scale', 40],
+    ['adhdrs-scale', 18],
+    ['caars-simple-scale', 26],
+    ['caars-full-scale', 66],
+    ['hsps-scale', 27],
+    ['psi-sf-scale', 43],
+    ['phq9-scale', 9],
+    ['sas-scale', 20],
+    ['sds-scale', 20],
+    ['dcdq-scale', 17],
+  ];
+
+  it.each(affectedScales)('%s 的 UUID 答案与 qN 答案计分结果一致', (scaleId, count) => {
+    const questionIds = Array.from(
+      { length: count },
+      (_, i) => `22222222-2222-4222-8222-${String(i + 1).padStart(12, '0')}`,
+    );
+    const orderByQuestionId = new Map(questionIds.map((id, i) => [id, i + 1] as const));
+    const qnAnswers: Record<string, number> = {};
+    const uuidAnswers: Record<string, number> = {};
+    questionIds.forEach((id, i) => {
+      const value = (i % 4) + 1;
+      qnAnswers[`q${i + 1}`] = value;
+      uuidAnswers[id] = value;
+    });
+
+    const viaUuid = calculateScore(
+      scaleId,
+      normalizeAnswersByQuestionOrder(uuidAnswers, orderByQuestionId),
+    );
+    const viaQn = calculateScore(scaleId, qnAnswers);
+
+    expect(viaUuid).toEqual(viaQn);
   });
 });

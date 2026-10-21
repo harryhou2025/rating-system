@@ -3,7 +3,7 @@
 > 本文是项目"当前状态"的唯一权威来源。其他文档（HANDOFF.md、.trae/specs/ 等）是历史记录，若与本文冲突，以本文为准。
 > 更新约定：每次改变项目状态的任务（部署、修复 Critical 问题、schema 变更、新增量表）完成后，必须同步更新本文；重要变化登记到第 9 节。**只写已确认的信息**，无法确认的写 `UNKNOWN` / `NEEDS VERIFICATION`，禁止猜测。
 
-最后核验日期：2026-09-04
+最后核验日期：2026-10-21
 
 ***
 
@@ -14,8 +14,8 @@
 | 分支                | `main`（与 `origin/main` 同步）                                                                |
 | 本地最新 commit       | 以 `git log -1` 为准（知识库文档自身提交会造成此行滞后，不逐 commit 维护）                |
 | Git tag / release | 无（项目从未打 tag）                                                                              |
-| 代码实际状态            | 工作区干净，无未提交改动                                                                              |
-| 是否已部署             | 是（生产环境运行中，2026-09-08 部署）                                                                  |
+| 代码实际状态            | 有未提交改动（2026-10-21 计分归一化修复 + 后台 401 处理），未提交、未部署                                                                              |
+| 是否已部署             | 是（生产仍运行 2026-09-08 部署的 `270e72d`；2026-10-21 修复尚未部署）                                                                  |
 | 生产环境对应 commit     | `270e72d`（2026-09-08：测评提交登录软引导 + 后台 Invalid Date/真实 IP/查看结果修复）                          |
 | GitHub            | `harryhou2025/rating-system`，CI 绿灯（tsc + lint + jest + build，Node 20）                     |
 
@@ -92,11 +92,11 @@
 
 ## 6. 当前测试和质量门禁
 
-| 命令                 | 内容                      | 当前结果（2026-09-04 本地实测）                                              |
+| 命令                 | 内容                      | 当前结果（2026-10-21 本地实测）                                              |
 | ------------------ | ----------------------- | ------------------------------------------------------------------ |
 | `npm run lint`     | ESLint                  | ✅ 通过（1 个 warning：Navbar.tsx useEffect 依赖，非阻塞）                      |
 | `npx tsc --noEmit` | 类型检查                    | ✅ 通过                                                               |
-| `npm test`         | Jest 单测                 | ✅ 234/234 通过（4 套件：scoring / cdmm / cdmm-import / shenduo）          |
+| `npm test`         | Jest 单测                 | ✅ 259/259 通过（4 套件：scoring / cdmm / cdmm-import / shenduo，2026-10-21 实测）          |
 | `npm run build`    | 生产构建                    | ✅ 成功（注意：构建期会执行 SQLite 初始化与路由模块加载，需 JWT\_SECRET 环境变量，CI 里用 dummy 值） |
 | CI（GitHub Actions） | push/PR 触发上述四项（Node 20） | ✅ 绿灯（`.github/workflows/ci.yml`）                                   |
 
@@ -141,12 +141,21 @@
 | 8  | Medium       | cdmm/shenduo 的 admin **API 层**写接口无专用守卫（UI 层只读，但直接调 API 可改数据）                                                                                                               | 未处理 |
 | 9  | Medium       | 死模块 5 个：`src/lib/{cache,rate-limit,encryption,export}.ts`、`src/data/sample-scales.ts`（无调用方）                                                                                | 未处理 |
 | 10 | Low          | CDMM 答题页无"返回/重新填写"入口；`XXXXXXXX` 机构占位符；webhook 自动部署未做                                                                                                                       | 未处理 |
+| 11 | **High**     | 生产库存在 44 条题目 UUID 键记录（最早 2026-03-28），其中标准量表 31 条结果失真（兜底值）：8 条完全错误、6 条部分错误、17 条不受影响。按"result 快照不重算"原则未修改历史数据，清单见 `reports/corrupted-assessments-20261021.csv` | 待决策 |
 
 ***
 
 ## 9. Recent Important Changes（最近重要变化）
 
 > 只记重要变化（新功能上线、schema 变更、安全修复、部署、技术栈/机制变化），普通小修复不记录。新条目加在最上面；条目过多时将旧内容移入历史归档目录（建立时在下方文档地图登记）。让新 AI 不必翻几十个 commit 就知道最近发生了什么。
+
+**2026-10-21（计分归一化修复 + 后台登录态失效处理，未部署）**
+
+- 修复标准量表计分失真：前端以题目 UUID 提交，`scoring.ts` 曾用进程内 `real-scales.ts` 的 UUID 做映射（静态映射由 `ce6fed7` 引入）；进程重启后 UUID 与数据库不一致，17 个量表完全按兜底值计分（CAT-Q 全 4 分只出 31 分"低掩饰"）。改为 `POST /api/assessments` 查询数据库 `questions.order` 建立 `UUID → qN` 映射后再计分；答案不完整返回 400，不再静默兜底
+- 后台：所有请求统一走 `adminFetch`，401/403 时清理 localStorage 并跳转 `/admin-login`（此前仅弹"获取 XX 失败"，过期 token 会一直停留在后台页面）
+- 历史数据按"result 快照不重算"处理：生产 31 条 UUID 键标准量表记录中 8 条完全错误、6 条部分错误、17 条不受影响，清单 `reports/corrupted-assessments-20261021.csv`；未改历史报告
+- 新增业务规则 13（答案键必须按数据库题目顺序归一化）；补 4 个归一化用例 + 21 个受影响量表 UUID/qN 一致性用例
+- 验证：`npm run lint`（1 个既有 warning）、`npx tsc --noEmit`、`npm test` 259/259、`npm run build` 全部通过；本地端到端 CAT-Q 全 4 分 = 94/高掩饰、不完整答案 = 400、shenduo 正常
 
 **2026-09-08b（测评提交登录软引导，commit 270e72d，已部署，三条路径浏览器实测通过）**
 

@@ -120,3 +120,11 @@
 - **影响模块**：`src/lib/auth.ts`、两个 route 文件
 - **违反后果**：build 失败（无 JWT_SECRET）或生产数据不更新（删 force-dynamic）。
 - **测试保护**：❌ 无（需要生产验证：启停量表后列表即时变化）。
+
+## 规则 13：答案键必须按数据库题目顺序归一化
+
+- **规则**：前端以题目 UUID 为键提交答案（`answers[questionId]`）。`POST /api/assessments` 必须查询 `questions` 表（`WHERE scale_id = ? ORDER BY "order"`）建立 `UUID → qN` 映射后，再调用 `calculateScore`；**禁止**使用 `src/data/real-scales.ts` 的内存题目 UUID 做映射。
+- **为什么存在**：`real-scales.ts` 的题目 ID 由 `uuidv4()` 在每次进程启动时重新生成，与数据库首次 seed 时写入的 UUID 不同。`ce6fed7`（2026-05-15）引入的静态映射在进程重启后全部失配，导致 17 个量表完全按兜底值计分（CAT-Q 全 4 分被算成 31 分"低掩饰"）；生产库最早可见 2026-03-28 的 UUID 键记录，问题直到 2026-10-21 才发现。
+- **影响模块**：`src/app/api/assessments/route.ts`、`src/lib/scoring.ts`
+- **违反后果**：计分函数拿不到 `qN` 键，`answers['qN'] || 0` / `|| 1` 兜底使极端答案也输出"正常"；且所有按题号取值的量表同时静默失真。
+- **测试保护**：✅ `tests/scoring.test.ts` 的 `normalizeAnswersByQuestionOrder` 用例（UUID→qN、CAT-Q 全 4 分=94、SCL-90、旧 qN 兼容、未知键丢弃），以及 21 个受影响量表的 UUID/qN 计分一致性用例。改提交格式或计分入口必须先跑这组测试。

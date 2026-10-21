@@ -48,3 +48,6 @@ read-pdf*.py
 # AI tooling local state & deploy leftovers
 .claude/
 update*.tar.gz
+
+# 本地数据清单/报告（可能含测评 UUID，UUID 即匿名结果访问凭据，禁止入库）
+/reports/

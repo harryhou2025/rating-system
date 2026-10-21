@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import getDB from '@/lib/db';
 import { withAdminAuth } from '@/lib/middleware';
-import { calculateScore } from '@/lib/scoring';
+import { calculateScore, normalizeAnswersByQuestionOrder } from '@/lib/scoring';
 import {
   calculateCorrectedAgeDays,
   matchAgeGroup,
@@ -99,12 +99,7 @@ export async function POST(request: Request) {
       const orderByQid = new Map<string, number>();
       rows.forEach((r: any, i: number) => orderByQid.set(r.id, i + 1));
 
-      const normalized: Record<string, number> = {};
-      for (const [key, value] of Object.entries(answers ?? {})) {
-        const v = value as number;
-        if (orderByQid.has(key)) normalized[`q${orderByQid.get(key)}`] = v;
-        else if (/^q\d+$/.test(key)) normalized[key] = v;
-      }
+      const normalized = normalizeAnswersByQuestionOrder(answers ?? {}, orderByQid);
       const questions = rows.map((_, i) => ({ id: `q${i + 1}`, dimension: rows[i].dimension }));
       const result = calculateShenduo(normalized, questions);
 
@@ -120,8 +115,24 @@ export async function POST(request: Request) {
       return NextResponse.json(assessment);
     }
     
-    // 计算得分
-    const result = calculateScore(scaleId, answers);
+    // 计算得分：按数据库真实题目顺序把 UUID 键答案归一化为 qN，避免依赖进程内 UUID
+    const questionRows = await db.all(
+      `SELECT id FROM questions WHERE scale_id = ? ORDER BY "order" ASC`,
+      [scaleId]
+    );
+    const orderByQuestionId = new Map<string, number>();
+    questionRows.forEach((row: any, index: number) => orderByQuestionId.set(row.id, index + 1));
+
+    const normalizedAnswers = normalizeAnswersByQuestionOrder(answers ?? {}, orderByQuestionId);
+
+    if (questionRows.length > 0 && Object.keys(normalizedAnswers).length !== questionRows.length) {
+      return NextResponse.json(
+        { error: '答案不完整，请重新作答' },
+        { status: 400 }
+      );
+    }
+
+    const result = calculateScore(scaleId, normalizedAnswers);
     
     const assessmentId = uuidv4();
     
